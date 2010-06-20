@@ -13,8 +13,6 @@
  *
  */
 
-echo "WHOAWHAO";
-
 $tgTableID = 0;
 
 class TableGear
@@ -83,7 +81,6 @@ class TableGear
   {
     if(!$query && !$this->database["table"]) return;
     $table = $this->database["table"];
-    $primaryKey = $this->_getPrimaryKey();
     if(!$query){
       if(!$this->database["table"]) return;
       if($_GET["sort"]){
@@ -93,7 +90,7 @@ class TableGear
         list($sort, $params) = $this->_getParams($this->database["sort"]);
         $desc = ($params == "desc") ? " DESC" : " ASC";
       } else {
-        $sort = implode(",", $primaryKey);
+        $sort = $this->_getPrimaryKeyNamesAsString(",");
       }
       $columns = $this->database["columns"] ? implode(",", $this->database["columns"]) : "*";
       $query = "SELECT SQL_CALC_FOUND_ROWS $columns FROM $table ORDER BY $sort$desc";
@@ -116,36 +113,46 @@ class TableGear
     $this->data = array();
     foreach($data as $row){
       $entry = array();
-      $entry["key"] = $this->_getUniqueKeyForRow($row);
+      $entry["key"] = $this->_getPrimaryKeyValues($row);
       $entry["data"] = $row;
       array_push($this->data, $entry);
     }
   }
 
 
-  function _getPrimaryKey()
+  function _getPrimaryKeyColumns()
   {
-    if($this->database["key"]) return $this->database["key"];
+    // This is a shortcut that the user can set. Only works with non-composite PKs.
+    if($this->database["key"]) return array("name" => $this->database["key"]);
+    // This will store the resulting PK fields fetched from the database.
+    if($this->database["keys"]) return $this->database["keys"];
     $table = $this->database["table"];
-    $columns = $this->query("SHOW KEYS FROM $table WHERE `Key_name`='PRIMARY'");
-    $key = array();
+    $columns = $this->query("SHOW COLUMNS FROM $table WHERE `Key`='PRI'");
+    $keys = array();
     foreach($columns as $column){
-      array_push($key, $column["Column_name"]);
+      $key = array();
+      $key["name"]    = $column["Field"];
+      // MySQL appears to not allow a value of NULL as a default for a primary key field.
+      $key["default"] = $column["Default"];
+      if(stripos($column["Extra"], "auto_increment")){
+        $key["auto"] = true;
+      }
+      array_push($keys, $key);
+      if($this->database["columns"]){
+        array_push($this->database["columns"], $key["name"]);
+      }
     }
-    if(!count($key) === 0) trigger_error("Primary key is required for table $table.", E_USER_ERROR);
-    $this->database["key"] = $key;
-    if($this->database["columns"]){
-      $this->database["columns"] = array_unique(array_merge($this->database["columns"], $key));
-    }
-    return $key;
+    if(!count($keys) === 0) trigger_error("Primary key is required for table $table.", E_USER_ERROR);
+    $this->database["keys"] = $keys;
+    return $keys;
   }
 
   function _limitQueryByPrimaryKey($query, $key){
     $where = array();
     $values = explode($this->primaryKeyDelimiter, $key);
-    $primaryKey = $this->_getPrimaryKey();
-    for($i = 0; $i < count($primaryKey); $i++){
-      $field = $primaryKey[$i];
+    $primaryKeys = $this->_getPrimaryKeyColumns();
+    for($i = 0; $i < count($primaryKeys); $i++){
+      $field = $primaryKeys[$i]["name"];
       $value = $values[$i];
       if(!is_numeric($value)) $value = '"'.mysql_real_escape_string($value, $this->connection).'"';
       array_push($where, "$field=$value");
@@ -154,15 +161,67 @@ class TableGear
     return "$query WHERE $where";
   }
 
-  function _getUniqueKeyForRow($row){
-    $key = array();
-    foreach($this->_getPrimaryKey() as $field){
-      array_push($key, $row[$field]);
+  function _getPrimaryKeyNamesAsString($delimiter)
+  {
+    if(!$delimiter) $delimiter = $this->primaryKeyDelimiter;
+    $result = array();
+    foreach($this->_getPrimaryKeyColumns() as $key){
+      array_push($result, $key["name"]);
     }
-    return implode($this->primaryKeyDelimiter, $key);
+    return implode($delimiter, $result);
   }
 
+  function _getPrimaryKeyValues($data){
+    $result = array();
+    foreach($this->_getPrimaryKeyColumns() as $key){
+      array_push($result, $data[$key["name"]]);
+    }
+    return implode($this->primaryKeyDelimiter, $result);
+  }
 
+  function _getPrimaryKeyValuesAfterInsertion($data)
+  {
+    $primaryKeys = $this->_getPrimaryKeyColumns();
+    $values = array();
+    foreach($primaryKeys as $key){
+      if($key["auto"]){
+        // Note here that in mySQL it IS possible to have a composite primary key with a single field set
+        // to auto_increment. In that case, LAST_INSERT_ID() will return 0, despite the fact that the field
+        // gets incremented, effectively making it impossible to know the data in that field. I am NOT handling
+        // that case here ("0" will be foreced into the resulting JSON data), and I can't see any reason it would
+        // make sense to be using a composite primary key AND an auto_increment field in the same table. If there
+        // IS a good reason and this is some kind of huge problem, contact me, especially if you have some good ideas
+        // about how to retrieve the result without a reliable means of getting the last inserted id.
+        array_push($values, mysql_insert_id());
+      } else {
+        $value = $data[$key["name"]];
+        if($value){
+          array_push($values, $value);
+        } else {
+          // We know that this primary key is not auto-increment, and we don't have a value from the incoming user data,
+          // so the value should be the default value for this field.
+          array_push($values, $key["default"]);
+        }
+      }
+    }
+    return implode($this->primaryKeyDelimiter, $values);
+  }
+
+  function _getPrimaryKeyValuesAfterUpdate($updatedData, $cKey)
+  {
+    $primaryKeys = $this->_getPrimaryKeyColumns();
+    $currentValues = explode($this->primaryKeyDelimiter, $cKey);
+    $values = array();
+    foreach($primaryKeys as $i => $key){
+      $updated = $updatedData[$key["name"]];
+      if($updated){
+        array_push($values, $updated);
+      } else {
+        array_push($values, $currentValues[$i]);
+      }
+    }
+    return implode($this->primaryKeyDelimiter, $values);
+  }
 
 
   /* Functions for working with the data */
@@ -443,7 +502,7 @@ class TableGear
       $this->_openTag("form", array("action" => $this->form["url"], "method" => $this->form["method"], "id" => $addNewRowID, "class" => "newRow"));
       $this->_outputHTML(array("tag" => "h3", "html" => $this->newRowLabel));
       $this->_openTag("table");
-      $this->_outputHeaders($headers);    
+      $this->_outputHeaders($headers);
       $this->_openTag("tbody");
       $emptyDataRow = $this->_fetchEmptyDataRow();
       $newDataRowID = "newDataRow_" . $this->table["id"];
@@ -455,7 +514,7 @@ class TableGear
       $this->_openTag("input", array("type" => "submit", "value" => $this->form["submit"]));
       $this->_closeTag("div");
       $this->_closeTag("form");
-    }  
+    }
     echo "\n";
   }
 
@@ -490,7 +549,8 @@ class TableGear
       $attrib["class"] = $this->_checkColumnClass("EDIT");
       $this->_openTag("td", $attrib);
       $id = $appendKey ? "edit".$key : null;
-      $this->_openTag("input", array("type" => "checkbox", "name" => "edit[]", "value" => $key, "id" => $id));
+      $value = $key ? $key : "NULL_STRING";
+      $this->_openTag("input", array("type" => "checkbox", "name" => "edit[]", "value" => $value));
       $this->_getLabel("editRowLabel", "edit".$key, "edit");
       $this->_closeTag("td");
     }
@@ -632,7 +692,7 @@ class TableGear
 
   function _outputHTML($html, $lineBreaks = false)
   {
-    if(!$html) return;
+    if(!isset($html)) return;
     if(is_array($html)){
       if($this->_isHash($html)){
         $closed = $this->_openTag($html["tag"], $html["attrib"]);
@@ -988,10 +1048,11 @@ class TableGear
     else {
       $rows = $this->_httpArray[$action];
       if(!$rows) return;
-      foreach($rows as $key){
-        if($action == "delete") $this->_deleteRow($key);
-        elseif($action == "edit")  $this->_updateTable($key);
-        $this->_json["key"] = $key;
+      // Note: $cKey denotes that there may be composite keys!
+      foreach($rows as $cKey){
+        if($action == "delete") $this->_deleteRow($cKey);
+        elseif($action == "edit")  $this->_updateTable($cKey);
+        $this->_json["affected"] = $this->_affectedRows;
       }
     }
     $this->_json["action"] = $action;
@@ -1007,64 +1068,62 @@ class TableGear
     if($this->errors) return;
     $query = "INSERT INTO $table (".implode(",", $fields).") VALUES (".implode(",", $values).")";
     $data = $this->query($query);
-    if($data) $this->_json["affected"]++;
-    $insertID = mysql_insert_id();
-    $this->_callback("onInsert", $insertID, $callbackPrev, $callbackUpdated);
-    $this->_json["data"] = $data;
-    $this->_json["key"] = $insertID;
+    if($data !== false){
+      $this->_json["data"] = $data;
+      $this->_json["affected"] = $this->_affectedRows; // Timing requires this to be here.
+      $this->_json["key"] = $this->_getPrimaryKeyValuesAfterInsertion($this->_httpArray["data"]);
+      $this->_callback("onInsert", $this->_json["key"], $callbackPrev, $this->_httpArray["data"]);
+    }
   }
 
-  function _deleteRow($key)
+  function _deleteRow($cKey)
   {
     if($this->connection){
       $table    = $this->database["table"];
       if(!$table) return;
       if($this->callback["getPrevious"]){
-        $query = $this->_limitQueryByPrimaryKey("SELECT * FROM $table", $key);
+        $query = $this->_limitQueryByPrimaryKey("SELECT * FROM $table", $cKey);
         $callbackPrev = $this->query($query);
         $callbackPrev = $callbackPrev[0];
       }
-      $query = $this->_limitQueryByPrimaryKey("DELETE FROM $table", $key);
-      $deleted = $this->query($query);
-      $this->_callback("onDelete", $key, $callbackPrev);
-      /* Affected rows is buggy for delete queries, so... */
-      $this->_json["affected"] = $deleted ? 1 : 0;
+      $query = $this->_limitQueryByPrimaryKey("DELETE FROM $table", $cKey);
+      $result = $this->query($query);
+      if($result){
+        $this->_json["key"] = $cKey;
+        $this->_callback("onDelete", $cKey, $callbackPrev);
+      }
     } elseif($this->data){
-      $row = $this->_selectArrayRow($key);
+      $row = $this->_selectArrayRow($cKey);
       if($this->data[$row]){
         $callbackPrev = $this->data[$row];
         unset($this->data[$row]);
-        $this->_callback("onDelete", $key, $callbackPrev);
+        $this->_callback("onDelete", $cKey, $callbackPrev);
         return 1;
       }
     }
   }
 
-  function _updateTable($key)
+  function _updateTable($cKey)
   {
     $table = $this->database["table"];
     if(!$table) return;
     if($this->callback["getPrevious"]){
-      $query = $this->_limitQueryByPrimaryKey("SELECT * FROM $table", $key);
+      $query = $this->_limitQueryByPrimaryKey("SELECT * FROM $table", $cKey);
       $callbackPrev = $this->query($query);
       $callbackPrev = $callbackPrev[0];
      }
-    echo "OHH FUCK";
-    echo $key;
-    $update = $this->_constructQueryValues($this->_httpArray["data"][$key], $key);
+    $values = $this->_constructQueryValues($this->_httpArray["data"][$cKey], true);
     if($this->errors) return;
-    $query = $this->_limitQueryByPrimaryKey("UPDATE $table SET ".implode(",", $update), $key);
-    echo $query;
+    $query = $this->_limitQueryByPrimaryKey("UPDATE $table SET ".implode(",", $values), $cKey);
     $result = $this->query($query);
     if($result){
-      $this->_json["affected"]++;
-      $callbackUpdated = $this->_httpArray["data"][$key];
-      $callbackUpdated[$this->_getPrimaryKey()] = $key;
-      $this->_callback("onUpdate", $key, $callbackPrev, $callbackUpdated);
+      $updatedData = $this->_httpArray["data"][$cKey];
+      $this->_json["key"] = $this->_getPrimaryKeyValuesAfterUpdate($updatedData, $cKey);
+      $this->_callback("onUpdate", $cKey, $callbackPrev, $updatedData);
     }
   }
 
-  function _constructQueryValues($dataSet, $key = null)
+  function _constructQueryValues($dataSet, $update = null)
   {
     $values = array();
     $count = 1;
@@ -1077,9 +1136,8 @@ class TableGear
       if(!isset($sql)) $sql = "NULL";
       elseif(is_numeric($sql)) $sql = floatval($sql);
       else $sql = "'$sql'";
-      $sql = ($key) ? "$field=$sql" : $sql;
+      $sql = ($update) ? "$field=$sql" : $sql;
       array_push($values, $sql);
-      $this->_json["name"] = $key ? "data[$key][$field]" : "data[$field]";
       $this->_json["field"] = $field;
       $this->_json["value"] = $userInput;
       $this->_json["formatted"] = nl2br($this->_getFormatted($data, $field, $column));
@@ -1092,7 +1150,24 @@ class TableGear
   {
     $function = $this->callback[$type];
     if(!function_exists($function)) return;
-    call_user_func($function, $key, $previous, $updated, $this);
+    $userExposedKey = $this->_getPrimaryKeyArrayOrValue($key);
+    $updated = $this->_appendPrimaryKeyValues($updated, $key);
+    call_user_func($function, $userExposedKey, $previous, $updated, $this);
+  }
+
+  function _getPrimaryKeyArrayOrValue($key)
+  {
+    $key = implode($this->primaryKeyDelimiter, $key);
+    return count($key == 1) ? $key[0] : $key;
+  }
+
+  function _appendPrimaryKeyValues($updated, $values)
+  {
+    $values = implode($this->primaryKeyDelimiter, $values);
+    foreach($this->_getPrimaryKeyColumns() as $i => $key){
+      $updated[$key["name"]] = $values[$i];
+    }
+    return $updated;
   }
 
   function _getTotals()

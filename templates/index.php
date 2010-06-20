@@ -4,6 +4,68 @@
 
 include("../lib/TableGear1.5.2.php");
 
+/*
+
+$options = array();
+$options["database"] = array();
+
+
+// Database host: if omitted defaults to localhost.
+// $options["database"]["host"]        = "<DATABASE_HOST>",
+
+// Basic database information. These are required.
+$options["database"]["name"]        = "<DATABASE_NAME>";
+$options["database"]["username"]    = "<DATABASE_USERNAME>";
+$options["database"]["password"]    = "<DATABASE_PASSWORD>";
+$options["database"]["table"]       = "<DATABASE_TABLE>";
+
+
+
+// This will prevent the default query (which selects all fields in the table) from being run automatically.
+// Turn this on when using custom queries (fetchDataArray). Note that "table" above is still necessary for
+// update/insert to work.
+
+// $options["database"]["noAutoQuery"] = true;
+
+
+// Sortable fields.
+// $options["sortable"]  = array("<FIELD1>", "<FIELD2", "ETC...");
+
+// Editable fields.
+// $options["editable"]  = array("<FIELD1>", "<FIELD2", "ETC...");
+
+// Fields that use textareas instead of standard inputs.
+// $options["textareas"] = array("<FIELD1>", "<FIELD2", "ETC...");
+
+// Fields that use select boxes instead of standard inputs. ...MORE!!!
+// $options["selects"]   = array("<FIELD1>" => array("yes", "no"));
+
+// Format data from the database before it is output to the browser.
+// $options["formatting"]  = array("<DATE_FIELD>" => "eDate[n/j/Y]");
+
+// Format user input before it is inserted into the database.
+// $options["inputFormat"] = array("<DATE_FIELD>" => "timestamp");
+
+// If true, rows can be deleted.
+// $options["allowDelete"]    = true;
+
+// Text or an HTML element for the delete label. MORE!!
+// $options["deleteRowLabel"] = array("tag" => "img", "attrib" => array("src" => "/images/delete.gif"));
+
+// If set, pagination is allowed on the table using the parameters specified.
+// $options["pagination"] = array();
+// $options["pagination"]["perPage"]   = 10;
+// $options["pagination"]["prev"]      = "Prev";
+// $options["pagination"]["next"]      = "Next";
+// $options["pagination"]["linkCount"] = 10;
+
+
+$table = new TableGear($options);
+
+// If you are using a custom query, you can specify it here. ... MORE!
+$table->fetchDataArray("SELECT <FIELD1>,<FIELD2> FROM <DATABASE_TABLE> WHERE <etc..>");
+
+ */
 
 
 $tg = new TableGear(array(
