@@ -1,0 +1,145 @@
+﻿
+
+body
+{
+margin: 0 auto;
+padding: 0 20px 20px 20px;
+font-family: Tahoma, Helvetica, Arial, sans-serif;
+background: #444;
+}
+
+fieldset
+{
+border: none;
+padding: 0;
+}
+
+form {
+  padding: 1em;
+}
+
+table
+{
+font-size: 0.9em;
+width: 100%;
+background-color: #ffffff;
+padding: 1em;
+}
+
+tr.odd
+{
+background-color: #eaeaea;
+}
+
+tr.noDataRow td {
+  text-align: center;
+}
+
+table th.title
+{
+text-align: center;
+}
+
+
+th,td
+{
+text-align: left;
+}
+
+td
+{
+height: 1.6em;
+padding: 0 0.5em;
+}
+
+td.editable
+{
+width: 200px;
+height: 22px;
+}
+
+th.sortable
+{
+cursor: pointer;
+}
+
+tr.loading {
+  color: #dddddd;
+  background-color: #f6f6f6;
+}
+
+td.loading
+{
+  background: url('../images/loading.gif') no-repeat 4px center;
+  padding-left: 24px;
+  color: #aaaaaa;
+  width: 176px;
+}
+
+label.delete {
+  cursor: pointer;
+  display: none;
+}
+
+p.addRow {
+  text-align: right;
+  margin: 0 1em 0 0;
+}
+
+p.addRow a {
+  cursor: pointer;
+}
+
+form fieldset.errors {
+  color: red;
+}
+
+form fieldset.errors p {
+  margin: 0.2em;
+}
+
+form div.submit {
+  padding: 1em;
+  text-align: right;
+}
+
+form div.submit input {
+  cursor: pointer;
+}
+
+form.newRow h3 {
+  margin: 0;
+}
+
+form.newRow th.edit,
+form.newRow td.edit,
+form.newRow th.delete,
+form.newRow td.delete {
+  display: none;
+}
+
+.pagination {
+	margin: 1em 0;
+	color: #888888;
+	width: 350px;
+	margin: 0 auto;
+}
+
+.pagination a {
+	color: #6666ff;	
+}
+
+.pagination .prev 
+{
+	float: left;
+}
+
+.pagination .next
+{
+	float: right;
+}
+
+.pagination .pages
+{
+	text-align: center;
+}
