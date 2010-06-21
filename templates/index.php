@@ -27,6 +27,12 @@ $options["database"]["table"]       = "<DATABASE_TABLE>";
 
 // $options["database"]["noAutoQuery"] = true;
 
+// This will fetch default values from the database for the purpose of inserting new rows.
+// Turn this on when your tables define defaults that are not NULL or 0.
+// One example of this is a CURRENT_TIMESTAMP default for a date field.
+
+// $options["database"]["fetchDefaults"] = true;
+
 
 // Sortable fields.
 // $options["sortable"]  = array("<FIELD1>", "<FIELD2", "ETC...");
@@ -72,23 +78,26 @@ $tg = new TableGear(array(
   "database"      => array("username" => "andrewpl_user",
                            "password" => "k2346",
                            "database" => "andrewpl_demos",
-                           "table" => "labs_tablegear",
-                           "noAutoQuery" => false),
+                           "table" => "labs_tablegear2",
+                           "noAutoQuery" => false,
+                           "fetchDefaults" => true),
   "sortable"      => "all",
   "editable"      => "all",
   "allowDelete" => true,
   "deleteRowLabel" => array("tag" => "img", "attrib" => array("src" => "/images/icons/delete.gif")),
   "textareas"      => array("item"),
-  "selects" => array("item" => array("hmm", "yes", "no")),
-  "formatting"    => array("date" => "eDate[n/j/Y]"),
-  "inputFormat"    => array("date" => "timestamp"),
+  "selects"        => array("date" => "increment[step=86400,range=20,convert_time]", "item" => array("hmm", "yes", "no")),
+  "inputFormat"    => array("date" => "date"),
+  "formatting"     => array("date" => "date", "price" => "currency[prefix=$]", "memory" => "memory[auto]"),
   //"pagination"     => array("perPage" => 10, "prev" => "Prev", "next" => "Next", "linkCount" => 10 ),
-
-
-  "formatting"    => array("price" => "currency[prefix=$]")
 ));
 
-//$tk->fetchDataArray("SELECT price,date FROM labs_tablegear WHERE price > 300");
+//$tg->fetchDataArray("SELECT field1 FROM labs_tablegear2");
+//
+//
+//TODO MAKE SURE SHIT DOESNT ERROR JUST BECAUSE I FUCKED UP THE FIELDS
+//MAKE SURE CUSTOM QUERIES CAN UPDATE
+//MAKE SURE THE PRIMARY KEY FIELD IS UPDATED IN THE PAGE
 
 
 

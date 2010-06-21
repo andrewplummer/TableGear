@@ -15,20 +15,22 @@
 
 $tgTableID = 0;
 
+define(MYSQL_DATE_FORMAT, "Y-m-d H:i:s");
+;
+
 class TableGear
 {
 
-  var $processHTTP = true;      // Process data submitted by HTTP
-  var $indent = 0;              // HTML indent base
-  var $autoHeaders = true;      // Automatically get the headers from field names
-  var $readableHeaders = true;  // Creates readable headers from camelCase and underscore field names.
-  var $noDataMessage = "- No Data -";    // The message to display when no data is available
-  var $newRowLabel = "New Row";
+  var $processHTTP         = true;           // Process data submitted by HTTP
+  var $indent              = 0;              // HTML indent base
+  var $autoHeaders         = true;           // Automatically get the headers from field names
+  var $readableHeaders     = true;           // Creates readable headers from camelCase and underscore field names.
+  var $noDataMessage       = "- No Data -";  // The message to display when no data is available
+  var $newRowLabel         = "New Row";
   var $primaryKeyDelimiter = "|";
-  var $addNewRows = true;
-
-  var $_curIndent = 0;          // For HTML output
-  var $_hasTags = false;        // For HTML output
+  var $addNewRows          = true;
+  var $_curIndent          = 0;              // For HTML output
+  var $_hasTags            = false;          // For HTML output
 
   function TableGear($options)
   {
@@ -134,7 +136,7 @@ class TableGear
       $key["name"]    = $column["Field"];
       // MySQL appears to not allow a value of NULL as a default for a primary key field.
       $key["default"] = $column["Default"];
-      if(stripos($column["Extra"], "auto_increment")){
+      if(stripos($column["Extra"], "auto_increment") !== -1){
         $key["auto"] = true;
       }
       array_push($keys, $key);
@@ -485,6 +487,7 @@ class TableGear
         $this->_openTag("input", array("type" => "hidden", "name" => "fields[]", "value" => $field));
       }
       $this->_openTag("input", array("type" => "hidden", "name" => "noDataMessage", "value" => $this->noDataMessage));
+      $this->_openTag("input", array("type" => "hidden", "name" => "table", "value" => $this->table["id"]));
       if($this->pagination){
         $this->_openTag("input", array("type" => "hidden", "name" => "page", "value" => $this->pagination["currentPage"]));
       }
@@ -511,6 +514,7 @@ class TableGear
       $this->_closeTag("table");
       $this->_openTag("div", array("class" => "submit"));
       $this->_openTag("input", array("type" => "hidden", "name" => "insert", "value" => "true"));
+      $this->_openTag("input", array("type" => "hidden", "name" => "table", "value" => $this->table["id"]));
       $this->_openTag("input", array("type" => "submit", "value" => $this->form["submit"]));
       $this->_closeTag("div");
       $this->_closeTag("form");
@@ -620,7 +624,7 @@ class TableGear
   function _fetchEmptyDataRow()
   {
     if($this->emptyDataRow) return $this->emptyDataRow;
-    if($this->data){
+    if($this->data && !$this->database["fetchDefaults"]){
       $emptyDataRow["data"] = $this->data[0]["data"];
       foreach($emptyDataRow["data"] as $index => $value){
         $emptyDataRow["data"][$index] = "";
@@ -629,8 +633,12 @@ class TableGear
       $emptyDataRow["data"] = array();
       $describe = $this->query("DESCRIBE " . $this->database["table"] . ";");
       foreach($describe as $row){
-        if($row["Key"] == "PRI") continue;
-        $value = $row["Default"] ? $row["Default"] : "";
+        $default = $row["Default"];
+        if($default == "CURRENT_TIMESTAMP"){
+          $value = date(MYSQL_DATE_FORMAT);
+        } else {
+          $value = $default;
+        }
         $emptyDataRow["data"][$row["Field"]] = $value;
       }
     }
@@ -758,16 +766,18 @@ class TableGear
     list($type, $params) = $this->_getParams($arg, true);
     if($type == "increment"){
       $options = array();
+      if($params["convert_time"]) $data = strtotime($data);
       $abs = ($params["absolute"] || $params["abs"]) ? true : false;
       $min = ($params["min"]) ? $params["min"] : -INF;
       $max = ($params["max"]) ? $params["max"] : INF;
-      $start = ($abs) ? $min : $data - $params["range"];
-      $stop  = ($abs) ? $max : $data + $params["range"];
       $step  = ($params["step"]) ? $params["step"] : 1;
+      $start = ($abs) ? $min : $data - ceil($params["range"] / 2) * $step;
+      $stop  = ($abs) ? $max : $data + ceil($params["range"] / 2) * $step;
       if(!is_numeric($start) || !is_numeric($stop) || !$step) return array();
       for($i=$start; $i<=$stop; $i+=$step){
         $num = $i;
         if(!$abs && ($num < $min || $num > $max)) continue;
+        if($params["convert_time"]) $num = date(MYSQL_DATE_FORMAT, $num);
         array_push($options, $num);
       }
       return $options;
@@ -792,7 +802,7 @@ class TableGear
     list($type, $params) = $this->_getParams($format);
     if($type == "date" || $type == "eDate"){
       if(!is_numeric($data)) $data = strtotime($data);
-      if(!$data) return null;
+      if(is_null($data)) return null;
       if(preg_match("/^[A-Z0-9_]+$/", $params) && strlen($params) > 1) $params = constant($params);
       return ($params) ? date($params, $data) : date("F j, Y", $data);
     } elseif($type == "currency"){
@@ -813,7 +823,7 @@ class TableGear
       $auto = $params["auto"];
       $decimals = $params["decimals"] ? $params["decimals"] : 0;
       $unit = $params["unit"] ? strtolower($params["unit"]) : "b";
-      $units = array("b", "kb", "mb", "gb", "tb");
+      $units = array("b", "kb", "mb", "gb", "tb", "pb", "eb");
       $memory = $data;
       if($auto){
         $u = $unit;
@@ -822,6 +832,8 @@ class TableGear
         $u = str_replace("megabytes", "mb", $u);
         $u = str_replace("gigabytes", "gb", $u);
         $u = str_replace("terabytes", "tb", $u);
+        $u = str_replace("petabytes", "pb", $u);
+        $u = str_replace("exabytes",  "eb", $u);
         $index = array_search($u, $units);
         while($memory > 999 && $index !== FALSE){
           if(!$units[++$index]) break;
@@ -854,9 +866,9 @@ class TableGear
       if($type == "eDate" || $type == "eTimestamp") $value = preg_replace("/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/", "\\2/\\1/\\3", $value);
       /* Get Japanese/Chinese dates */
       $value = mb_convert_kana($value, "as", "UTF-8");
-      $value = preg_replace("/^(\d+)蟷ｴ(\d+)譛\d+)譌･$/", "\\2/\\3/\\1", $value);
+      $value = preg_replace("/^(\d+)年(\d+)月(\d+)日$/", "\\2/\\3/\\1", $value);
       /* Note: 32-bit platforms only support dates between 1901 and 2038 */
-      $stamp = strtotime($value);
+      $stamp = is_numeric($value) ? $value : strtotime($value);
       if(!$stamp){
         $this->_addError($field, "Timestamp is invalid");
         return false;
@@ -865,7 +877,7 @@ class TableGear
         return $stamp;
       } else {
         if(preg_match("/^[A-Z0-9_]+$/", $params)) $format = constant($params);
-        else $format = $params ? $params : "Y-m-d H:i:s"; // Standard MYSQL format
+        else $format = $params ? $params : MYSQL_DATE_FORMAT;
         $date = date($format, $stamp);
         if(!$date) $this->_addError($field, "Date is invalid");
         return $date;
@@ -1069,7 +1081,6 @@ class TableGear
     $query = "INSERT INTO $table (".implode(",", $fields).") VALUES (".implode(",", $values).")";
     $data = $this->query($query);
     if($data !== false){
-      $this->_json["data"] = $data;
       $this->_json["affected"] = $this->_affectedRows; // Timing requires this to be here.
       $this->_json["key"] = $this->_getPrimaryKeyValuesAfterInsertion($this->_httpArray["data"]);
       $this->_callback("onInsert", $this->_json["key"], $callbackPrev, $this->_httpArray["data"]);
@@ -1118,6 +1129,7 @@ class TableGear
     $result = $this->query($query);
     if($result){
       $updatedData = $this->_httpArray["data"][$cKey];
+      $this->_getUpdatedOptions($this->_httpArray["data"][$cKey], $this->_httpArray["column"]);
       $this->_json["key"] = $this->_getPrimaryKeyValuesAfterUpdate($updatedData, $cKey);
       $this->_callback("onUpdate", $cKey, $callbackPrev, $updatedData);
     }
@@ -1144,6 +1156,23 @@ class TableGear
       $count++;
     }
     return $values;
+  }
+
+  function _getUpdatedOptions($data, $column)
+  {
+    $options = array();
+    foreach($data as $field => $value){
+      if($this->_testForOption("selects", $field, $column)){
+        $arr = $this->_getOptionsArray($field, $column, $value);
+        foreach($arr as $val){
+          $option = array();
+          $option["value"] = $val;
+          $option["formatted"] = $this->_getFormatted($val, $field, $column);
+          array_push($options, $option);
+        }
+      }
+    }
+    if(count($options) > 0) $this->_json["updatedOptions"] = $options;
   }
 
   function _callback($type, $key, $previous = null, $updated = null)
