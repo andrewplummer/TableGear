@@ -15,8 +15,8 @@
 
 $tgTableID = 0;
 
-define(MYSQL_DATE_FORMAT, "Y-m-d H:i:s");
-;
+define("MYSQL_DATE_FORMAT", "Y-m-d H:i:s");
+
 
 class TableGear
 {
@@ -56,14 +56,14 @@ class TableGear
     $db = $this->database;
     if(!$db["database"] || !$db["username"]) trigger_error("Database info required!", E_USER_ERROR);
     if(!$db["table"]) trigger_error("Database table must be specified.", E_USER_ERROR);
-    $server = ($db["server"]) ? $db["server"] : "localhost";
+    $server = $db["server"] ? $db["server"] : "localhost";
     $this->connection = mysql_connect($server, $db["username"], $db["password"]);
     mysql_select_db($db["database"], $this->connection);
   }
 
   function query($query)
   {
-    //echo "QUERY: $query<br/>"; // Leave for debug
+    echo "<br/>QUERY: $query<br/>"; // Leave for debug
     if(!$this->connection) trigger_error("No database connection established!", E_USER_ERROR);
     $result = mysql_query($query, $this->connection);
     $this->_affectedRows = mysql_affected_rows($this->connection);
@@ -83,21 +83,28 @@ class TableGear
   {
     if(!$query && !$this->database["table"]) return;
     $table = $this->database["table"];
-    if(!$query){
+    // Get the sorting field
+    if($_GET["sort"]){
+      $sort = $_GET["sort"];
+      $desc = $_GET["desc"] ? " DESC" : " ASC";
+    } elseif($this->database["sort"]){
+      list($sort, $params) = $this->_getParams($this->database["sort"]);
+      $desc = ($params == "desc") ? " DESC" : " ASC";
+    } else {
+      $sort = $this->_getPrimaryKeyNamesAsString(",");
+    }
+    $auto_query = !isset($query);
+    if($auto_query){
       if(!$this->database["table"]) return;
-      if($_GET["sort"]){
-        $sort = $_GET["sort"];
-        $desc = $_GET["desc"] ? " DESC" : " ASC";
-      } elseif($this->database["sort"]){
-        list($sort, $params) = $this->_getParams($this->database["sort"]);
-        $desc = ($params == "desc") ? " DESC" : " ASC";
-      } else {
-        $sort = $this->_getPrimaryKeyNamesAsString(",");
-      }
       $columns = $this->database["columns"] ? implode(",", $this->database["columns"]) : "*";
       $query = "SELECT SQL_CALC_FOUND_ROWS $columns FROM $table ORDER BY $sort$desc";
     }
     if($this->pagination){
+      if(!$auto_query && isset($sort)){
+        // Add the sort field onto the query for custom queries,
+        // but only if we have pagination otherwise sort is handled manually.
+        $query .= " ORDER BY $sort$desc";
+      }
       $page = $this->pagination["currentPage"] = ($_GET["page"]) ? $_GET["page"] : 1;
       if(!$this->pagination["perPage"]) $this->pagination["perPage"] = 10;
       $min = ($page - 1) * $this->pagination["perPage"];
@@ -176,6 +183,7 @@ class TableGear
   function _getPrimaryKeyValues($data){
     $result = array();
     foreach($this->_getPrimaryKeyColumns() as $key){
+      $value = $data[$key["name"]];
       array_push($result, $data[$key["name"]]);
     }
     return implode($this->primaryKeyDelimiter, $result);

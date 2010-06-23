@@ -68,35 +68,40 @@ $options["database"]["table"]       = "<DATABASE_TABLE>";
 
 $table = new TableGear($options);
 
-// If you are using a custom query, you can specify it here. ... MORE!
-$table->fetchDataArray("SELECT <FIELD1>,<FIELD2> FROM <DATABASE_TABLE> WHERE <etc..>");
+// If you need to use a custom query instead of the default (fetching everything), you can specify it here.
+// You can use any syntax in the query you want, however you MUST include the primary key field in the SELECT
+// clause, otherwise none of the editing functionality will work! Also, if you need pagination on the table
+// you MUST include "SQL_CALC_FOUND_ROWS" after the SELECT clause and not have any LIMIT or ORDER BY clauses!
+$table->fetchDataArray("SELECT SQL_CALC_FOUND_ROWS <FIELD1>,<FIELD2> FROM <DATABASE_TABLE> WHERE <etc..>");
 
  */
 
 
 $tg = new TableGear(array(
-  "database"      => array("username" => "andrewpl_user",
-                           "password" => "k2346",
-                           "database" => "andrewpl_demos",
+  "database"      => array("username" => "root",
+                           "password" => "",
+                           "database" => "demos",
                            "table" => "labs_tablegear2",
-                           "noAutoQuery" => false,
-                           "fetchDefaults" => true),
+                           "noAutoQuery" => true,
+                           "fetchDefaults" => true
+                         ),
   "sortable"      => "all",
   "editable"      => "all",
   "allowDelete" => true,
-  "deleteRowLabel" => array("tag" => "img", "attrib" => array("src" => "/images/icons/delete.gif")),
+  "deleteRowLabel" => array("tag" => "img", "attrib" => array("src" => "images/delete.gif")),
   "textareas"      => array("item"),
   "selects"        => array("date" => "increment[step=86400,range=20,convert_time]", "item" => array("hmm", "yes", "no")),
   "inputFormat"    => array("date" => "date"),
-  "formatting"     => array("date" => "date", "price" => "currency[prefix=$]", "memory" => "memory[auto]"),
-  //"pagination"     => array("perPage" => 10, "prev" => "Prev", "next" => "Next", "linkCount" => 10 ),
+  "formatting"     => array("date" => "date", "price" => "currency[prefix=$]", "memory" => "memory[auto]")
+ // "pagination"     => array("perPage" => 5, "prev" => "Prev", "next" => "Next", "linkCount" => 10 ),
 ));
 
-//$tg->fetchDataArray("SELECT field1 FROM labs_tablegear2");
+$tg->fetchDataArray("SELECT SQL_CALC_FOUND_ROWS id,field2 FROM labs_tablegear2 WHERE field3 LIKE '%fds%'");
 //
 //
 //TODO MAKE SURE SHIT DOESNT ERROR JUST BECAUSE I FUCKED UP THE FIELDS
 //MAKE SURE CUSTOM QUERIES CAN UPDATE
+//NEW ROWS ON TABLES WITH LIMITED FIELDS!
 //MAKE SURE THE PRIMARY KEY FIELD IS UPDATED IN THE PAGE
 
 
