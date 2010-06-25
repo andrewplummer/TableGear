@@ -1,0 +1,4 @@
+
+h1. TableGear
+
+h2. TableGear is a simple plugin written in PHP and Mootools that lets you create a dynamic table that represents a table in a database.
