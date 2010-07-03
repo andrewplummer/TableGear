@@ -4,7 +4,7 @@
  *
  *  TableGear for PHP (An Intuitive Data Table Management Class)
  *
- *  Version: 1.5.2
+ *  Version: 1.6
  *  Documentation: AndrewPlummer.com (http://www.andrewplummer.com/code/tablegear/)
  *  License: MIT-style License
  *
