@@ -22,16 +22,17 @@ $options["database"]["table"]       = "<DATABASE_TABLE>";
 
 
 // This will prevent the default query (which selects all fields in the table) from being run automatically.
-// Turn this on when using custom queries (fetchDataArray). Note that "table" above is still necessary for
+// Turn this on when using custom queries (fetchData). Note that "table" above is still necessary for
 // update/insert to work.
 
 // $options["database"]["noAutoQuery"] = true;
 
-// This will fetch default values from the database for the purpose of inserting new rows.
+// This will find all fields in the database for the purpose of inserting new rows.
 // Turn this on when your tables define defaults that are not NULL or 0.
 // One example of this is a CURRENT_TIMESTAMP default for a date field.
+// Note that this option cannot be used when you are using a custom query with fetchData
 
-// $options["database"]["fetchDefaults"] = true;
+// $options["database"]["fetchEmptyRow"] = true;
 
 
 // Sortable fields.
@@ -72,21 +73,27 @@ $table = new TableGear($options);
 // You can use any syntax in the query you want, however you MUST include the primary key field in the SELECT
 // clause, otherwise none of the editing functionality will work! Also, if you need pagination on the table
 // you MUST include "SQL_CALC_FOUND_ROWS" after the SELECT clause and not have any LIMIT or ORDER BY clauses!
-$table->fetchDataArray("SELECT SQL_CALC_FOUND_ROWS <FIELD1>,<FIELD2> FROM <DATABASE_TABLE> WHERE <etc..>");
+$table->fetchData("SELECT SQL_CALC_FOUND_ROWS <FIELD1>,<FIELD2> FROM <DATABASE_TABLE> WHERE <etc..>");
 
  */
 
 
+$username = "root";
+//$username = "andrewpl_user";
+$password = "";
+//$password = "k2346";
+$db = "demos";
+//$db = "andrewpl_demos";
+
 $tg = new TableGear(array(
-  "database"      => array("username" => "root",
-                           "password" => "",
-                           "database" => "demos",
-                           "table" => "labs_tablegear2",
-                           "noAutoQuery" => true,
-                           "fetchDefaults" => true
+  "database"      => array("username" => $username,
+                           "password" => $password,
+                           "database" => $db,
+                           "fields" => array("field2"),
+                           "table" => "labs_tablegear2"
                          ),
+
   "sortable"      => "all",
-  "editable"      => "all",
   "allowDelete" => true,
   "deleteRowLabel" => array("tag" => "img", "attrib" => array("src" => "images/delete.gif")),
   "textareas"      => array("item"),
@@ -96,13 +103,10 @@ $tg = new TableGear(array(
  // "pagination"     => array("perPage" => 5, "prev" => "Prev", "next" => "Next", "linkCount" => 10 ),
 ));
 
-$tg->fetchDataArray("SELECT SQL_CALC_FOUND_ROWS id,field2 FROM labs_tablegear2 WHERE field3 LIKE '%fds%'");
-//
+//$tg->fetchData("SELECT SQL_CALC_FOUND_ROWS id,field2 FROM labs_tablegear2");
+
 //
 //TODO MAKE SURE SHIT DOESNT ERROR JUST BECAUSE I FUCKED UP THE FIELDS
-//MAKE SURE CUSTOM QUERIES CAN UPDATE
-//NEW ROWS ON TABLES WITH LIMITED FIELDS!
-//MAKE SURE THE PRIMARY KEY FIELD IS UPDATED IN THE PAGE
 
 
 
@@ -114,7 +118,6 @@ $tg->fetchDataArray("SELECT SQL_CALC_FOUND_ROWS id,field2 FROM labs_tablegear2 W
   <title>TableGear for Mootools</title>
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.2.4/mootools-yui-compressed.js"></script>
   <script type="text/javascript" src="../lib/TableGear1.5.2.js"></script>
-  <link type="text/css" rel="stylesheet" href="/css/demo.css" />
   <link type="text/css" rel="stylesheet" href="stylesheets/tablegear.css" />
 </head>
 <body>

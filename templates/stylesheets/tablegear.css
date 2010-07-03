@@ -119,27 +119,27 @@ form.newRow td.delete {
 }
 
 .pagination {
-	margin: 1em 0;
-	color: #888888;
-	width: 350px;
-	margin: 0 auto;
+  margin: 1em 0;
+  color: #888888;
+  width: 350px;
+  margin: 0 auto;
 }
 
 .pagination a {
-	color: #6666ff;	
+  color: #6666ff;
 }
 
 .pagination .prev 
 {
-	float: left;
+  float: left;
 }
 
 .pagination .next
 {
-	float: right;
+  float: right;
 }
 
 .pagination .pages
 {
-	text-align: center;
+  text-align: center;
 }

@@ -35,6 +35,8 @@ class TableGear
   function TableGear($options)
   {
     global $tgTableID;
+    $this->editableFields = array();
+    if(!isset($options["editable"])) $options["editable"] = "allExceptAutoIncrement";
     if($options["editable"]) $this->form = array("url" => $_SERVER["REQUEST_URI"], "method" => "post", "submit" => "Update");
     $tgTableID++;
     $this->table = array("id" => "tgTable");
@@ -43,7 +45,7 @@ class TableGear
     if($tgTableID > 1) $this->table["id"] .= $tgTableID;
     if($this->database) $this->connect();
     if($this->processHTTP) $this->_checkSubmit();
-    if(!$this->database["noAutoQuery"]) $this->fetchDataArray();
+    if(!$this->database["noAutoQuery"]) $this->fetchData();
     $this->_checkColumnShift();
   }
 
@@ -56,14 +58,18 @@ class TableGear
     $db = $this->database;
     if(!$db["database"] || !$db["username"]) trigger_error("Database info required!", E_USER_ERROR);
     if(!$db["table"]) trigger_error("Database table must be specified.", E_USER_ERROR);
-    $server = $db["server"] ? $db["server"] : "localhost";
+
+    if($db["server"])   $server = $db["server"];
+    elseif($db["host"]) $server = $db["host"];
+    else                $server = "localhost";
+
     $this->connection = mysql_connect($server, $db["username"], $db["password"]);
     mysql_select_db($db["database"], $this->connection);
   }
 
   function query($query)
   {
-    echo "<br/>QUERY: $query<br/>"; // Leave for debug
+    //echo "<br/>QUERY: $query<br/>"; // Leave for debug
     if(!$this->connection) trigger_error("No database connection established!", E_USER_ERROR);
     $result = mysql_query($query, $this->connection);
     $this->_affectedRows = mysql_affected_rows($this->connection);
@@ -79,7 +85,7 @@ class TableGear
     }
   }
 
-  function fetchDataArray($query = null)
+  function fetchData($query = null)
   {
     if(!$query && !$this->database["table"]) return;
     $table = $this->database["table"];
@@ -96,8 +102,8 @@ class TableGear
     $auto_query = !isset($query);
     if($auto_query){
       if(!$this->database["table"]) return;
-      $columns = $this->database["columns"] ? implode(",", $this->database["columns"]) : "*";
-      $query = "SELECT SQL_CALC_FOUND_ROWS $columns FROM $table ORDER BY $sort$desc";
+      $fields = $this->database["fields"] ? implode(",", $this->database["fields"]) : "*";
+      $query = "SELECT SQL_CALC_FOUND_ROWS $fields FROM $table ORDER BY $sort$desc";
     }
     if($this->pagination){
       if(!$auto_query && isset($sort)){
@@ -138,6 +144,7 @@ class TableGear
     $table = $this->database["table"];
     $columns = $this->query("SHOW COLUMNS FROM $table WHERE `Key`='PRI'");
     $keys = array();
+    $this->primaryKeyColumnsByName = array();
     foreach($columns as $column){
       $key = array();
       $key["name"]    = $column["Field"];
@@ -147,8 +154,9 @@ class TableGear
         $key["auto"] = true;
       }
       array_push($keys, $key);
-      if($this->database["columns"]){
-        array_push($this->database["columns"], $key["name"]);
+      $this->primaryKeyColumnsByName[$key["name"]] = $key;
+      if($this->database["fields"]){
+        array_push($this->database["fields"], $key["name"]);
       }
     }
     if(!count($keys) === 0) trigger_error("Primary key is required for table $table.", E_USER_ERROR);
@@ -202,6 +210,7 @@ class TableGear
         // make sense to be using a composite primary key AND an auto_increment field in the same table. If there
         // IS a good reason and this is some kind of huge problem, contact me, especially if you have some good ideas
         // about how to retrieve the result without a reliable means of getting the last inserted id.
+        $this->_json["auto"] = $key["name"];
         array_push($values, mysql_insert_id());
       } else {
         $value = $data[$key["name"]];
@@ -304,6 +313,12 @@ class TableGear
         $sortType = $this->_getSortType($field);
         $class = $this->_addClass("sortable", null, $sortable);
         $class = $this->_addClass($sortType, $class);
+        if($this->primaryKeyColumnsByName[$field]){
+          $class = $this->_addClass("primary_key", $class);
+          if($this->primaryKeyColumnsByName[$field]["auto"]){
+            $class = $this->_addClass("auto_increment", $class);
+          }
+        }
         if($this->headers[$field]) $userHeader = $this->headers[$field];
         elseif($this->headers[$column]) $userHeader = $this->headers[$column];
         else $userHeader = null;
@@ -397,7 +412,6 @@ class TableGear
   {
     if(!$this->data) $this->data = array();
     if($this->form){
-      $this->editableFields = array();
       $this->_openTag("form", array("action" => $this->form["url"], "method" => $this->form["method"], "id" => $this->form["id"], "class" => $this->form["class"]));
       $this->_outputHTML($this->custom["FORM_TOP"]);
       if($this->errors){
@@ -612,7 +626,9 @@ class TableGear
         $useFormat = $this->_testForOption("formatting", $column, $currentColumn);
         $text = ($useFormat) ? $this->_getFormatted($data, $column, $currentColumn) : $data;
         $text = $this->_dataTransform($text, $column, $rowIndex, $currentColumn, $key);
+        $this->_openTag("span");
         $this->_outputHTML($text);
+        $this->_closeTag("span");
       }
       $this->_closeTag("td");
       $currentColumn++;
@@ -632,7 +648,7 @@ class TableGear
   function _fetchEmptyDataRow()
   {
     if($this->emptyDataRow) return $this->emptyDataRow;
-    if($this->data && !$this->database["fetchDefaults"]){
+    if($this->data && !$this->database["fetchEmptyRow"]){
       $emptyDataRow["data"] = $this->data[0]["data"];
       foreach($emptyDataRow["data"] as $index => $value){
         $emptyDataRow["data"][$index] = "";
@@ -642,12 +658,13 @@ class TableGear
       $describe = $this->query("DESCRIBE " . $this->database["table"] . ";");
       foreach($describe as $row){
         $default = $row["Default"];
+        $field   = $row["Field"];
         if($default == "CURRENT_TIMESTAMP"){
           $value = date(MYSQL_DATE_FORMAT);
         } else {
           $value = $default;
         }
-        $emptyDataRow["data"][$row["Field"]] = $value;
+        $emptyDataRow["data"][$field] = $value;
       }
     }
     $this->emptyDataRow = $emptyDataRow;
@@ -765,6 +782,13 @@ class TableGear
     if($this->columns[$column]) return $this->columns[$column];
     elseif($this->column[$num]) return $this->columns[$num];
     elseif($column == "EDIT" || $column == "DELETE") return strtolower($column);
+    elseif(isset($this->primaryKeyColumnsByName[$column])){
+      $class = "primary_key";
+      if($this->primaryKeyColumnsByName[$column]["auto"]){
+        $class .= " auto_increment";
+      }
+      return $class;
+    }
   }
 
   function _getOptionsArray($field, $column, $data)
@@ -920,6 +944,10 @@ class TableGear
     if($field == "EDIT" || $field == "DELETE") return false;
     $option = $this->$option;
     if($option == "all") return true;
+    if($option == "allExceptAutoIncrement"){
+      $column = $this->primaryKeyColumnsByName[$field];
+      return ($column && $column["auto"]) ? false : true;
+    }
     elseif(is_array($option)){
       $associative = $this->_isHash($option);
       if($option[$field] || ($associative && $option[$column])) return true;
@@ -1212,7 +1240,7 @@ class TableGear
     $totals = $this->totals;
     if(!$totals || !$this->connection) return;
     $this->_json["totals"] = array();
-    $this->fetchDataArray();
+    $this->fetchData();
     foreach($totals as $field){
       $total = 0;
       if($this->data){
