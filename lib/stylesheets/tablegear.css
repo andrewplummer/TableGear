@@ -76,9 +76,22 @@ td.loading
   width: 176px;
 }
 
-label.delete {
+td.delete label {
   cursor: pointer;
   display: none;
+}
+
+table.activated th.edit,
+table.activated td.edit {
+  display: none;
+}
+
+table.activated td.delete input {
+  display: none;
+}
+
+table.activated td.delete label {
+  display: block;
 }
 
 p.addRow {

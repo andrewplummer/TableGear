@@ -544,7 +544,7 @@ class TableGear
     echo "\n";
   }
 
-  function getJavascript($id = null)
+  function getJavascript($library, $id = null)
   {
     if(!$id) $id = $this->table["id"];
     $editableCellsPerRow = count(array_unique($this->editableFields));
@@ -554,7 +554,12 @@ class TableGear
     $options = $this->_jsonEncode($options);
     $this->_openTag("script", array("type" => "text/javascript"));
     echo "\n";
-    echo "new TableGear('$id', $options);";
+    if($library == "mootools"){
+      echo "new TableGear('$id', $options);";
+    }
+    if($library == "jquery"){
+      echo "$('#$id').tableGear($options);";
+    }
     echo "\n";
     $this->_closeTag("script");
   }
@@ -639,7 +644,7 @@ class TableGear
       if($this->loading) $this->_outputHTML($this->loading, "loading");
       if(!$key) $key = "NULL_STRING";
       $this->_openTag("input", array("type" => "checkbox", "name" => "delete[]", "value" => $key, "id" => "delete".$key));
-      $this->_getLabel("deleteRowLabel", "delete".$key, "delete");
+      $this->_getLabel("deleteRowLabel", "delete".$key);
       $this->_closeTag("td");
     }
     $this->_closeTag("tr");
@@ -768,7 +773,7 @@ class TableGear
     return $header;
   }
 
-  function _getLabel($label, $for, $class)
+  function _getLabel($label, $for, $class = null)
   {
     $label = $this->$label;
     if(!$label) return;
