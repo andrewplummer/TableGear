@@ -531,7 +531,7 @@ class TableGear
       $this->_openTag("tbody");
       $emptyDataRow = $this->_fetchEmptyDataRow();
       $newDataRowID = "newDataRow_" . $this->table["id"];
-      $this->_constructDataRow($emptyDataRow, 1, false, array("id" => $newDataRowID));
+      $this->_constructDataRow($emptyDataRow, 1, false, array("id" => $newDataRowID, "class" => "newRow"));
       $this->_closeTag("tbody");
       $this->_closeTag("table");
       $this->_openTag("div", array("class" => "submit"));
@@ -573,7 +573,8 @@ class TableGear
   function _constructDataRow($data, $rowIndex, $appendKey = true, $attrib = array())
   {
     $key = $data["key"];
-    $attrib["class"] = ($rowIndex % 2) ? "even" : "odd";
+    $attrib["class"] = isset($attrib["class"]) ? $attrib["class"] . " " : "";
+    $attrib["class"] .= ($rowIndex % 2) ? "even" : "odd";
     $this->_openTag("tr", $attrib);
     if($this->form && $this->editable){
       $attrib = array();
