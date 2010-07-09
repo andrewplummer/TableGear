@@ -36,7 +36,7 @@ class TableGear
   {
     global $tgTableID;
     $this->editableFields = array();
-    if(!isset($options["editable"])) $options["editable"] = "allExceptAutoIncrement";
+    $options = $this->setDefaults($options);
     if($options["editable"]) $this->form = array("url" => $_SERVER["REQUEST_URI"], "method" => "post", "submit" => "Update");
     $tgTableID++;
     $this->table = array("id" => "tgTable");
@@ -49,6 +49,11 @@ class TableGear
     $this->_checkColumnShift();
   }
 
+  function setDefaults($options){
+    if(!isset($options["editable"])) $options["editable"] = "allExceptAutoIncrement";
+    if(!isset($options["sortable"])) $options["sortable"] = "all";
+    return $options;
+  }
 
 
   /* Functions for working with the database */
@@ -94,8 +99,10 @@ class TableGear
       $sort = $_GET["sort"];
       $desc = $_GET["desc"] ? " DESC" : " ASC";
     } elseif($this->database["sort"]){
-      list($sort, $params) = $this->_getParams($this->database["sort"]);
-      $desc = ($params == "desc") ? " DESC" : " ASC";
+      $sort = $this->database["sort"];
+      if(is_array($sort)){
+        $sort = implode(",", $sort);
+      }
     } else {
       $sort = $this->_getPrimaryKeyNamesAsString(",");
     }
@@ -138,7 +145,7 @@ class TableGear
   function _getPrimaryKeyColumns()
   {
     // This is a shortcut that the user can set. Only works with non-composite PKs.
-    if($this->database["key"]) return array("name" => $this->database["key"]);
+    if($this->database["key"]) return array(array("name" => $this->database["key"]));
     // This will store the resulting PK fields fetched from the database.
     if($this->database["keys"]) return $this->database["keys"];
     $table = $this->database["table"];
@@ -806,12 +813,13 @@ class TableGear
       $options = array();
       if($params["convert_time"]) $data = strtotime($data);
       $abs = ($params["absolute"] || $params["abs"]) ? true : false;
-      $min = ($params["min"]) ? $params["min"] : -INF;
-      $max = ($params["max"]) ? $params["max"] : INF;
+      $min = isset($params["min"]) ? $params["min"] : -INF;
+      $max = isset($params["max"]) ? $params["max"] : INF;
       $step  = ($params["step"]) ? $params["step"] : 1;
       $start = ($abs) ? $min : $data - ceil($params["range"] / 2) * $step;
       $stop  = ($abs) ? $max : $data + ceil($params["range"] / 2) * $step;
       if(!is_numeric($start) || !is_numeric($stop) || !$step) return array();
+      echo $start . " AND " . $stop;
       for($i=$start; $i<=$stop; $i+=$step){
         $num = $i;
         if(!$abs && ($num < $min || $num > $max)) continue;
@@ -847,19 +855,25 @@ class TableGear
       list($type, $params) = $this->_getParams($format, true);
       $currency = $data;
       $precision  = (isset($params["precision"])) ? $params["precision"] : 2;
+      $thousands  = (isset($params["thousands"])) ? $params["thousands"] : ",";
+      $decimal    = (isset($params["decimal"]))   ? $params["decimal"] : ".";
       $padding  = $params["pad"] ? $precision : false;
-      $commas  = $params["nocommas"] ? false: true;
-      $currency = $commas ? number_format(round($currency, $precision), $precision) : $currency;
+      $currency = number_format(round($currency, $precision), $precision, $decimal, $thousands);
       $currency = $padding ? $currency : str_replace(".00", "", $currency);
       $currency = $params["prefix"] . $currency;
       $currency = $currency . $params["suffix"];
       return $currency;
     } elseif($type == "numeric"){
-      return number_format(round($data, $params), $params);
+      list($type, $params) = $this->_getParams($format, true);
+      $precision  = (isset($params["precision"])) ? $params["precision"] : 0;
+      $thousands  = (isset($params["thousands"])) ? $params["thousands"] : ",";
+      $decimal    = (isset($params["decimal"]))   ? $params["decimal"] : ".";
+      if($decimal == "COMMA") $decimal = ",";
+      return number_format(round($data, $precision), $precision, $decimal, $thousands);
     } elseif($type == "memory"){
       list($type, $params) = $this->_getParams($format, true);
       $auto = $params["auto"];
-      $decimals = $params["decimals"] ? $params["decimals"] : 0;
+      $precision = $params["precision"] ? $params["precision"] : 0;
       $unit = $params["unit"] ? strtolower($params["unit"]) : "b";
       $units = array("b", "kb", "mb", "gb", "tb", "pb", "eb");
       $memory = $data;
@@ -881,13 +895,13 @@ class TableGear
           }
         }
       }
-      if(!$params["small"] && $unit == "mb" || $unit == "kb") $decimals = 0;
+      if(!$params["small"] && $unit == "mb" || $unit == "kb") $precision = 0;
       $unit = ($unit == "b") ? "B" : $unit;
       $unit = $params["capital"] ? strtoupper($unit) : $unit;
       $unit = $params["camel"] ? ucwords($unit) : $unit;
       $space = $params["space"] ? " " : null;
-      $memory  = number_format(round($memory, $decimals), $decimals);
-      if($decimals > 0) $memory  = str_replace(".0", "", str_replace(".00", "", $memory));
+      $memory  = number_format(round($memory, $precision), $precision);
+      if($precision > 0) $memory  = str_replace(".0", "", str_replace(".00", "", $memory));
       $memory .= $space . $unit;
       return $memory;
     }
@@ -1204,6 +1218,7 @@ class TableGear
   {
     $options = array();
     foreach($data as $field => $value){
+      if(!$this->_hasIncrementedSelect($field, $column)) continue;
       if($this->_testForOption("selects", $field, $column)){
         $arr = $this->_getOptionsArray($field, $column, $value);
         foreach($arr as $val){
@@ -1215,6 +1230,14 @@ class TableGear
       }
     }
     if(count($options) > 0) $this->_json["updatedOptions"] = $options;
+  }
+
+  function _hasIncrementedSelect($field, $column)
+  {
+    $arg = $this->selects[$column] ? $this->selects[$column] : $this->selects[$field];
+    if(is_array($arg) || !$arg) return false;
+    list($type, $params) = $this->_getParams($arg, true);
+    return $type == "increment";
   }
 
   function _callback($type, $key, $previous = null, $updated = null)
