@@ -56,7 +56,7 @@ class TableGear
   function connect()
   {
     $db = $this->database;
-    if(!$db["database"] || !$db["username"]) trigger_error("Database info required!", E_USER_ERROR);
+    if(!$db["name"] || !$db["username"]) trigger_error("Database info required!", E_USER_ERROR);
     if(!$db["table"]) trigger_error("Database table must be specified.", E_USER_ERROR);
 
     if($db["server"])   $server = $db["server"];
@@ -64,7 +64,7 @@ class TableGear
     else                $server = "localhost";
 
     $this->connection = mysql_connect($server, $db["username"], $db["password"]);
-    mysql_select_db($db["database"], $this->connection);
+    mysql_select_db($db["name"], $this->connection);
   }
 
   function query($query)
