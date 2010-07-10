@@ -1,6 +1,11 @@
 <?
 
 
+// TableGear 1.6 Usage:
+//
+// This is the starting point for using TableGear!
+// T
+
 include("../lib/include/TableGear1.6.php");
 
 
@@ -28,7 +33,7 @@ $options["database"]["table"]       = "labs_tablegear2";
 // deleteRowLabel  = Text or an element that is used for the delete label.
 //                   This accepts a string or an HTML object (more info above).
 //
-// $options["allowDelete"] = true;
+ $options["allowDelete"] = true;
 //
 // $options["deleteRowLabel"] = "×";  // A simple character.
 // $options["deleteRowLabel"] = array("tag" => "img", "attrib" => array("src" => "images/delete.gif")); // Default delete image.
