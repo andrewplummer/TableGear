@@ -912,10 +912,10 @@ class TableGear
   {
     list($type, $params) = $this->_getParams($this->inputFormat[$field]);
     if(!$type) return $value;
-    $type = strtolower(str_replace(" ", "", $type));
-    if($type == "date" || $type == "eDate" || $type == "timestamp" || $type == "eTimestamp"){
+    $type   = strtolower(str_replace(" ", "", $type));
+    if($type == "date" || $type == "edate"){
       /* Get English Dates */
-      if($type == "eDate" || $type == "eTimestamp") $value = preg_replace("/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/", "\\2/\\1/\\3", $value);
+      if($type == "edate") $value = preg_replace("/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/", "\\2/\\1/\\3", $value);
       /* Get Japanese/Chinese dates */
       $value = mb_convert_kana($value, "as", "UTF-8");
       $value = preg_replace("/^(\d+)年(\d+)月(\d+)日$/", "\\2/\\3/\\1", $value);
@@ -925,7 +925,7 @@ class TableGear
         $this->_addError($field, "Timestamp is invalid");
         return false;
       }
-      if($type == "timestamp" || $type == "eTimestamp"){
+      if($params == "timestamp" || $params == "TIMESTAMP"){
         return $stamp;
       } else {
         if(preg_match("/^[A-Z0-9_]+$/", $params)) $format = constant($params);
@@ -1120,7 +1120,9 @@ class TableGear
       foreach($rows as $cKey){
         if($action == "delete") $this->_deleteRow($cKey);
         elseif($action == "edit")  $this->_updateTable($cKey);
-        $this->_json["affected"] = $this->_affectedRows;
+        if(is_numeric($this->_affectedRows)){
+          $this->_json["affected"] = $this->_affectedRows;
+        }
       }
     }
     $this->_json["action"] = $action;
