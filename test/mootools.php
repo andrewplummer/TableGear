@@ -340,8 +340,8 @@ $table = new TableGear($options);
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>TableGear for jQuery</title>
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-  <script type="text/javascript" src="../lib/javascripts/TableGear1.6-jQuery.js"></script>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.2.4/mootools-yui-compressed.js"></script>
+  <script type="text/javascript" src="../lib/javascripts/TableGear1.6-MooTools.js"></script>
   <link type="text/css" rel="stylesheet" href="../lib/stylesheets/tablegear.css" />
   <style type="text/css">
 
@@ -355,6 +355,6 @@ $table = new TableGear($options);
   <div>
     <?= $table->getTable() ?>
   </div>
-<?= $table->getJavascript("jquery") ?>
+<?= $table->getJavascript("mootools") ?>
 </body>
 </html>

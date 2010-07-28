@@ -29,7 +29,7 @@ $options["pagination"] = array();
 $options["database"]["name"]        = "demos";
 $options["database"]["username"]    = "root";
 $options["database"]["password"]    = "";
-$options["database"]["table"]       = "labs_tablegear";
+$options["database"]["table"]       = "labs_tablegear2";
 
 
 
@@ -62,7 +62,7 @@ $options["database"]["sort"] = "title DESC ";
 // This option will limit the fields selected in
 // the auto query to those specified in the array.
 
-$options["database"]["fields"]   = array("id", "title", "date", "number", "memory","price", "image");
+$options["database"]["fields"]   = array("title", "date", "number", "memory","price");
 
 
 // -- noAutoQuery (for custom queries)
@@ -300,19 +300,6 @@ $options["inputFormat"] = array("date" => "date");            // Accepts human-r
 
 
 
-$options["title"] = "Lovely Table";
-$options["headers"] = array("price" => array("tag" => "div", "html" => "You got punk'd!"));
-$options["columns"] = array("price" => "wowzers");
-$options["transform"]["image"] = array("tag" => "img", "attrib" => array("src" => "{DATA}"));
-
-$options["shiftColumns"] = array("title" => 6);
-
-
-$options["custom"]["FORM_TOP"] = "Top of the form to ya!";
-$options["custom"]["FORM_BOTTOM"] = "Dark down here...";
-
-$options["custom"]["TABLE_TOP"] = "On top of ol' table.";
-$options["custom"]["TABLE_BOTTOM"] = "Get under the table!";
 
 
 // Instanciates the table. This must be included here!
@@ -343,13 +330,6 @@ $table = new TableGear($options);
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
   <script type="text/javascript" src="../lib/javascripts/TableGear1.6-jQuery.js"></script>
   <link type="text/css" rel="stylesheet" href="../lib/stylesheets/tablegear.css" />
-  <style type="text/css">
-
-.wowzers {
-  background-color: #ffe2e2;
-}
-
-  </style>
 </head>
 <body>
   <div>

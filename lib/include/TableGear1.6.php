@@ -98,6 +98,7 @@ class TableGear
     if($_GET["sort"]){
       $sort = $_GET["sort"];
       $desc = $_GET["desc"] ? " DESC" : " ASC";
+      $this->database["sort"] = $sort . $desc;
     } elseif($this->database["sort"]){
       $sort = $this->database["sort"];
       if(is_array($sort)){
@@ -164,6 +165,7 @@ class TableGear
       $this->primaryKeyColumnsByName[$key["name"]] = $key;
       if($this->database["fields"]){
         array_push($this->database["fields"], $key["name"]);
+        $this->database["fields"] = array_unique($this->database["fields"]);
       }
     }
     if(!count($keys) === 0) trigger_error("Primary key is required for table $table.", E_USER_ERROR);
@@ -337,20 +339,25 @@ class TableGear
           $html = $userHeader;
         }
         if(!$html && $this->autoHeaders) $html = $this->_autoFormatHeader($field);
-        if($this->pagination && $this->pagination["totalPages"] != 1){
-          $desc = ($_GET["sort"] == $field && !$_GET["desc"]) ? "true" : null;
-          $href = $this->_modifyURIParams(array("sort" => $field, "desc" => $desc, "page" => null));
-          if($_GET["sort"] == $field){
-            $carat = array("tag" => "span", "attrib" => array("class" => "carat"));
-            if($_GET["desc"]){
-              $desc = null;
-              $carat["html"] = "▼";
-            } else {
-              $desc = "true";
-              $carat["html"] = "▲";
-            }
-            $html = array(array("tag" => "span", "html" => $html), $carat);
+
+        // Match sorting field
+        preg_match('/^\w+/', $this->database["sort"], $match);
+        $sort = $match[0];
+        $desc = preg_match('/desc\s*$/i', $this->database["sort"]) > 0;
+
+        $carat = array("tag" => "span", "attrib" => array("class" => "carat"));
+        if($sort == $field){
+          if($desc){
+            $desc = null;
+            $carat["html"] = "▼";
+          } else {
+            $desc = "true";
+            $carat["html"] = "▲";
           }
+        }
+        $html = array(array("tag" => "span", "html" => $html), $carat);
+        if($this->pagination && $this->pagination["totalPages"] != 1){
+          $href = $this->_modifyURIParams(array("sort" => $field, "desc" => $desc, "page" => null));
           $link = array("tag" => "a", "html" => $html, "attrib" => array("href" => $href));
           $header = array("html" => $link);
         } else {
@@ -435,7 +442,7 @@ class TableGear
       }
       $this->_openTag("fieldset");
     }
-    $this->_outputHTML($this->_custom["TABLE_TOP"]);
+    $this->_outputHTML($this->custom["TABLE_TOP"]);
     $this->_openTag("table", array("id" => $this->table["id"], "class" => $this->table["class"]));
     $headers = $this->_fetchHeaders();
     if($headers || $this->title){
@@ -491,7 +498,7 @@ class TableGear
       $this->_openTag("div", array("class" => "pages"));
       $page = $this->pagination["currentPage"];
       $linkCount = $this->pagination["linkCount"] ? $this->pagination["linkCount"] : 5;
-      $min = ($page - $linkCount < 0) ? 1 : $page - $linkCount;
+      $min = ($page - $linkCount < 1) ? 1 : $page - $linkCount;
       $max = ($page + $linkCount > $this->pagination["totalPages"]) ? $this->pagination["totalPages"] : $page + $linkCount;
       for($i=$min;$i<=$max;$i++){
         $attribs = array();
@@ -668,8 +675,17 @@ class TableGear
       }
     } else {
       $emptyDataRow["data"] = array();
-      $describe = $this->query("DESCRIBE " . $this->database["table"] . ";");
-      foreach($describe as $row){
+      $query = "SHOW COLUMNS IN " . $this->database["table"];
+      if($this->database["fields"]){
+        // Array map is ugly as shit in PHP so do it the old fashioned way.
+        $escaped = array();
+        foreach($this->database["fields"] as $field){
+          array_push($escaped, "\"$field\"");
+        }
+        $query .= " WHERE Field IN (" . implode(",", $escaped) .")";
+      }
+      $columns = $this->query($query);
+      foreach($columns as $row){
         $default = $row["Default"];
         $field   = $row["Field"];
         if($default == "CURRENT_TIMESTAMP"){
@@ -819,7 +835,6 @@ class TableGear
       $start = ($abs) ? $min : $data - ceil($params["range"] / 2) * $step;
       $stop  = ($abs) ? $max : $data + ceil($params["range"] / 2) * $step;
       if(!is_numeric($start) || !is_numeric($stop) || !$step) return array();
-      echo $start . " AND " . $stop;
       for($i=$start; $i<=$stop; $i+=$step){
         $num = $i;
         if(!$abs && ($num < $min || $num > $max)) continue;
@@ -1189,6 +1204,16 @@ class TableGear
       $updatedData = $this->_httpArray["data"][$cKey];
       $this->_getUpdatedOptions($this->_httpArray["data"][$cKey], $this->_httpArray["column"]);
       $this->_json["key"] = $this->_getPrimaryKeyValuesAfterUpdate($updatedData, $cKey);
+
+
+      /*
+       * ACK...later...
+      $keys = array_keys($this->_httpArray["data"][$cKey]);
+      $field = $keys[0];
+      $this->_json["formatted"] = $this->_dataTransform($this->_json["formatted"], $field, $cKey, $this->_httpArray["column"], $cKey);
+       */
+
+
       $this->_callback("onUpdate", $cKey, $callbackPrev, $updatedData);
     }
   }

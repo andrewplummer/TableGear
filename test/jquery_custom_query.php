@@ -62,7 +62,7 @@ $options["database"]["sort"] = "title DESC ";
 // This option will limit the fields selected in
 // the auto query to those specified in the array.
 
-$options["database"]["fields"]   = array("id", "title", "date", "number", "memory","price", "image");
+$options["database"]["fields"]   = array("id", "title", "date", "number", "memory","price");
 
 
 // -- noAutoQuery (for custom queries)
@@ -71,7 +71,7 @@ $options["database"]["fields"]   = array("id", "title", "date", "number", "memor
 // Turn this on when using custom queries (fetchData). Note that "table" above is still necessary for
 // update/insert to work.
 
-// $options["database"]["noAutoQuery"] = true;
+$options["database"]["noAutoQuery"] = true;
 
 
 
@@ -293,26 +293,7 @@ $options["inputFormat"] = array("date" => "date");            // Accepts human-r
 //             etc...
 
 
-// $options["pagination"]["perPage"] = 10;  // 10 rows per page.
-// $options["pagination"]["prev"] = "prev"; // "prev" link will be shown.
-// $options["pagination"]["next"] = "next"; // "next" link will be shown.
-// $options["pagination"]["linkCount"] = 2; //  2 links on each side of the current page.
 
-
-
-$options["title"] = "Lovely Table";
-$options["headers"] = array("price" => array("tag" => "div", "html" => "You got punk'd!"));
-$options["columns"] = array("price" => "wowzers");
-$options["transform"]["image"] = array("tag" => "img", "attrib" => array("src" => "{DATA}"));
-
-$options["shiftColumns"] = array("title" => 6);
-
-
-$options["custom"]["FORM_TOP"] = "Top of the form to ya!";
-$options["custom"]["FORM_BOTTOM"] = "Dark down here...";
-
-$options["custom"]["TABLE_TOP"] = "On top of ol' table.";
-$options["custom"]["TABLE_BOTTOM"] = "Get under the table!";
 
 
 // Instanciates the table. This must be included here!
@@ -326,7 +307,8 @@ $table = new TableGear($options);
 // clause, otherwise none of the editing functionality will work! Also, if you need pagination on the table
 // you MUST include "SQL_CALC_FOUND_ROWS" after the SELECT clause and not have any LIMIT or ORDER BY clauses!
 //
-// $table->fetchData("SELECT SQL_CALC_FOUND_ROWS <FIELD1>,<FIELD2> FROM <DATABASE_TABLE> WHERE <etc..>");
+
+$table->fetchData("SELECT SQL_CALC_FOUND_ROWS id,price,memory FROM labs_tablegear WHERE price > 400");
 
 
 
@@ -343,13 +325,6 @@ $table = new TableGear($options);
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
   <script type="text/javascript" src="../lib/javascripts/TableGear1.6-jQuery.js"></script>
   <link type="text/css" rel="stylesheet" href="../lib/stylesheets/tablegear.css" />
-  <style type="text/css">
-
-.wowzers {
-  background-color: #ffe2e2;
-}
-
-  </style>
 </head>
 <body>
   <div>
