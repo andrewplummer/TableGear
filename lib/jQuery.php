@@ -57,8 +57,10 @@ $options["database"]["table"]       = "labs_tablegear2";
 
 // -- Database Fields
 //
-// This option will limit the fields selected in
-// the auto query to those specified in the array.
+// This option will limit the fields selected in the auto query to those specified in the array.
+// Also note that if you are using a custom query with fetchData (below) and are limiting the fields
+// returned in that query, you MUST specify those exact fields here as well if you want to be able
+// to add new rows!
 
 // $options["database"]["fields"]   = array("<FIELD1>", "<FIELD2>");
 

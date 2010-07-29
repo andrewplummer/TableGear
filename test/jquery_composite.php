@@ -62,7 +62,7 @@ $options["database"]["sort"] = "title DESC ";
 // This option will limit the fields selected in
 // the auto query to those specified in the array.
 
-$options["database"]["fields"]   = array("title", "date", "number", "memory","price");
+$options["database"]["fields"]   = array("title", "date", "price", "number", "memory");
 
 
 // -- noAutoQuery (for custom queries)

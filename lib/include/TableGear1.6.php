@@ -271,43 +271,41 @@ class TableGear
     $this->shiftColumn($col, $position);
   }
 
-  function shiftColumn($col, $pos)
+  function shiftColumn($row, $col, $pos)
   {
     if(is_numeric($col)){
-      $keys = array_keys($this->data[0]["data"]);
+      $keys = array_keys($row);
       $col = $keys[$col-1];
     }
     if(!is_numeric($pos)) list($pos, $params) = $this->_getParams($pos);
-    foreach($this->data as $rowIndex => $row){
-      $new = array();
-      $currentColumn = 1;
-      if($pos == "first"){
-        $new[$col] = $row["data"][$col];
+    $new = array();
+    $currentColumn = 1;
+    if($pos == "first"){
+      $new[$col] = $row[$col];
+      $currentColumn++;
+    }
+    foreach($row as $field => $data){
+      if($pos == "before" && $params == $field){
+        $new[$col] = $row[$col];
         $currentColumn++;
       }
-      foreach($row["data"] as $field => $data){
-        if($pos == "before" && $params == $field){
-          $new[$col] = $row["data"][$col];
-          $currentColumn++;
-        }
-        if($pos == $currentColumn){
-          $new[$col] = $row["data"][$col];
-          $currentColumn++;
-        }
-        if($field != $col){
-          $new[$field] = $data;
-          $currentColumn++;
-        }
-        if($pos == "after" && $params == $field){
-          $new[$col] = $row["data"][$col];
-          $currentColumn++;
-        }
+      if($pos == $currentColumn){
+        $new[$col] = $row[$col];
+        $currentColumn++;
       }
-      if($pos == "last"){
-        $new[$col] = $row["data"][$col];
+      if($field != $col){
+        $new[$field] = $data;
+        $currentColumn++;
       }
-      $this->data[$rowIndex]["data"] = $new;
+      if($pos == "after" && $params == $field){
+        $new[$col] = $row[$col];
+        $currentColumn++;
+      }
     }
+    if($pos == "last"){
+      $new[$col] = $row[$col];
+    }
+    return $new;
   }
 
   function _fetchHeaders()
@@ -696,6 +694,7 @@ class TableGear
         $emptyDataRow["data"][$field] = $value;
       }
     }
+    $emptyDataRow = $this->_checkColumnShift($emptyDataRow);
     $this->emptyDataRow = $emptyDataRow;
     return $emptyDataRow;
   }
@@ -730,7 +729,7 @@ class TableGear
     }
   }
 
-  function _openTag($tag, $args = null)
+  function _openTag($tag, $args = null, $output = true)
   {
     $nl   = "\n";
     $tabs = str_repeat("\t", $this->indent + $this->_curIndent);
@@ -746,43 +745,52 @@ class TableGear
         }
       }
     }
-    echo "$nl$tabs<$tag$attributes$close>";
+    $html = "$nl$tabs<$tag$attributes$close>";
+    if($output) echo $html;
     if(!$selfClosing) $this->_curIndent++;
     $this->_hasTags = ($selfClosing) ? true : false;
-    return $selfClosing;
+    return $html;
   }
 
-  function _outputHTML($html, $lineBreaks = false)
+  function _outputHTML($html, $lineBreaks = false, $output = true)
   {
     if(!isset($html)) return;
     if(is_array($html)){
+      $result = '';
       if($this->_isHash($html)){
-        $closed = $this->_openTag($html["tag"], $html["attrib"]);
-        $this->_outputHTML($html["html"]);
-        if(!$closed) $this->_closeTag($html["tag"]);
-        return;
+        $result .= $this->_openTag($html["tag"], $html["attrib"], $output);
+        $result .= $this->_outputHTML($html["html"], $lineBreaks, $output);
+        $result .= $this->_closeTag($html["tag"], $output);
+        return $result;
       } else {
         foreach($html as $element){
-          $this->_outputHTML($element);
+          $result .= $this->_outputHTML($element, $lineBreaks, $output);
         }
-        return;
+        return $result;
       }
+    } else {
+      $html = htmlspecialchars($html);
+      if($lineBreaks) $html = nl2br($html);
+      if($output) echo $html;
+      return $html;
     }
-    $html = htmlspecialchars($html);
-    if($lineBreaks) $html = nl2br($html);
-    echo $html;
   }
 
-  function _closeTag($tag)
+  function _closeTag($tag, $output = true)
   {
+    $selfClosing = (in_array($tag, array("input", "img", "br"))) ? true : false;
+    if($selfClosing) return '';
     $this->_curIndent--;
     $nl   = "\n";
     $tabs = str_repeat("\t", $this->indent + $this->_curIndent);
     if(!$this->_hasTags){
-      echo "</$tag>";
+      $html = "</$tag>";
       $this->_hasTags = true;
+    } else {
+      $html = "$nl$tabs</$tag>";
     }
-    else echo "$nl$tabs</$tag>";
+    if($output) echo $html;
+    return $html;
   }
 
   function _autoFormatHeader($header)
@@ -1028,13 +1036,20 @@ class TableGear
     return $transform;
   }
 
-  function _checkColumnShift()
+  function _checkColumnShift($array = null)
   {
     $shift = $this->shiftColumns;
-    if(!$shift) return;
+    if(!$shift) return $array;
     foreach($shift as $col => $pos){
-      $this->shiftColumn($col, $pos);
+      if($array){
+        $array["data"] = $this->shiftColumn($array["data"], $col, $pos);
+      } else {
+        foreach($this->data as $rowIndex => $row){
+          $this->data[$rowIndex]["data"] = $this->shiftColumn($row["data"], $col, $pos);
+        }
+      }
     }
+    return $array;
   }
 
   function _injectURLParam($inputName, $inputValue)
@@ -1206,12 +1221,10 @@ class TableGear
       $this->_json["key"] = $this->_getPrimaryKeyValuesAfterUpdate($updatedData, $cKey);
 
 
-      /*
-       * ACK...later...
       $keys = array_keys($this->_httpArray["data"][$cKey]);
       $field = $keys[0];
-      $this->_json["formatted"] = $this->_dataTransform($this->_json["formatted"], $field, $cKey, $this->_httpArray["column"], $cKey);
-       */
+      $transformed = $this->_dataTransform($this->_json["formatted"], $field, $cKey, $this->_httpArray["column"], $cKey);
+      $this->_json["formatted"] = $this->_outputHTML($transformed, false, false);
 
 
       $this->_callback("onUpdate", $cKey, $callbackPrev, $updatedData);

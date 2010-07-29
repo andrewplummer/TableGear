@@ -62,7 +62,7 @@ $options["database"]["sort"] = "title DESC ";
 // This option will limit the fields selected in
 // the auto query to those specified in the array.
 
-$options["database"]["fields"]   = array("title", "date", "number", "memory","price");
+$options["database"]["fields"]   = array("title", "date", "price", "number", "memory");
 
 
 // -- noAutoQuery (for custom queries)
@@ -326,15 +326,15 @@ $table = new TableGear($options);
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <title>TableGear for jQuery</title>
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-  <script type="text/javascript" src="../lib/javascripts/TableGear1.6-jQuery.js"></script>
+  <title>TableGear for MooTools</title>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.2.4/mootools-yui-compressed.js"></script>
+  <script type="text/javascript" src="../lib/javascripts/TableGear1.6-MooTools.js"></script>
   <link type="text/css" rel="stylesheet" href="../lib/stylesheets/tablegear.css" />
 </head>
 <body>
   <div>
     <?= $table->getTable() ?>
   </div>
-<?= $table->getJavascript("jquery") ?>
+<?= $table->getJavascript("mootools") ?>
 </body>
 </html>
