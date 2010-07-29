@@ -76,8 +76,12 @@ td.loading
   width: 176px;
 }
 
-td.delete label {
+td.delete {
+  background: url('../images/delete.gif') no-repeat 4px center;
   cursor: pointer;
+}
+
+td.delete label {
   display: none;
 }
 

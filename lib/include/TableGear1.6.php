@@ -1,8 +1,7 @@
 ﻿<?php
 
 /*
- *
- *  TableGear for PHP (An Intuitive Data Table Management Class)
+ *  TableGear (Dynamic table data in HTML)
  *
  *  Version: 1.6
  *  Documentation: AndrewPlummer.com (http://www.andrewplummer.com/code/tablegear/)
@@ -36,12 +35,13 @@ class TableGear
   {
     global $tgTableID;
     $this->editableFields = array();
-    $options = $this->setDefaults($options);
+    $options = $this->_setDefaults($options);
     if($options["editable"]) $this->form = array("url" => $_SERVER["REQUEST_URI"], "method" => "post", "submit" => "Update");
     $tgTableID++;
     $this->table = array("id" => "tgTable");
     $this->headers = array("EDIT" => "Edit Row", "DELETE" => "Delete Row");
     $this->_setOptions($options);
+    $this->_errorOnRequiredFields();
     if($tgTableID > 1) $this->table["id"] .= $tgTableID;
     if($this->database) $this->connect();
     if($this->processHTTP) $this->_checkSubmit();
@@ -49,12 +49,26 @@ class TableGear
     $this->_checkColumnShift();
   }
 
-  function setDefaults($options){
-    if(!isset($options["editable"])) $options["editable"] = "allExceptAutoIncrement";
-    if(!isset($options["sortable"])) $options["sortable"] = "all";
+  function _setDefaults($options){
+    if(!isset($options["editable"]))    $options["editable"] = "allExceptAutoIncrement";
+    if(!isset($options["sortable"]))    $options["sortable"] = "all";
+    if(!isset($options["allowDelete"])) $options["allowDelete"] = true;
     return $options;
   }
 
+  function _errorOnRequiredFields()
+  {
+    $this->_errorOnField($this->database["name"], "<DATABASE_NAME>", "Database name required: <DATABASE_NAME>");
+    $this->_errorOnField($this->database["username"], "<DATABASE_USERNAME>", "Database username required: <DATABASE_USERNAME>");
+    $this->_errorOnField($this->database["table"], "<DATABASE_TABLE>", "Database table required: <DATABASE_TABLE>");
+  }
+
+  function _errorOnField($field, $default, $message)
+  {
+    if(!isset($field) || $field == $default){
+      trigger_error(htmlentities($message), E_USER_ERROR);
+    }
+  }
 
   /* Functions for working with the database */
 
