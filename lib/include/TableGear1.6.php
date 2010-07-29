@@ -46,6 +46,7 @@ class TableGear
     if($this->database) $this->connect();
     if($this->processHTTP) $this->_checkSubmit();
     if(!$this->database["noAutoQuery"]) $this->fetchData();
+    if($this->database["error"]) return;
     $this->_checkColumnShift();
   }
 
@@ -58,15 +59,15 @@ class TableGear
 
   function _errorOnRequiredFields()
   {
-    $this->_errorOnField($this->database["name"], "<DATABASE_NAME>", "Database name required: <DATABASE_NAME>");
-    $this->_errorOnField($this->database["username"], "<DATABASE_USERNAME>", "Database username required: <DATABASE_USERNAME>");
-    $this->_errorOnField($this->database["table"], "<DATABASE_TABLE>", "Database table required: <DATABASE_TABLE>");
+    $this->_errorOnField($this->database["name"], "<DATABASE_NAME>", "Database required.");
+    $this->_errorOnField($this->database["username"], "<DATABASE_USERNAME>", "Username required.");
+    $this->_errorOnField($this->database["table"], "<DATABASE_TABLE>", "Table required.");
   }
 
   function _errorOnField($field, $default, $message)
   {
     if(!isset($field) || $field == $default){
-      trigger_error(htmlentities($message), E_USER_ERROR);
+      $this->addDatabaseError($message);
     }
   }
 
@@ -75,25 +76,28 @@ class TableGear
   function connect()
   {
     $db = $this->database;
-    if(!$db["name"] || !$db["username"]) trigger_error("Database info required!", E_USER_ERROR);
-    if(!$db["table"]) trigger_error("Database table must be specified.", E_USER_ERROR);
-
     if($db["server"])   $server = $db["server"];
     elseif($db["host"]) $server = $db["host"];
     else                $server = "localhost";
 
     $this->connection = mysql_connect($server, $db["username"], $db["password"]);
-    mysql_select_db($db["name"], $this->connection);
+    if(!mysql_select_db($db["name"], $this->connection)) $this->addDatabaseError("Database not found.");
+  }
+
+  function addDatabaseError($error)
+  {
+    if($this->database["error"]) return;
+    $this->database["error"] = $error;
   }
 
   function query($query)
   {
     //echo "<br/>QUERY: $query<br/>"; // Leave for debug
-    if(!$this->connection) trigger_error("No database connection established!", E_USER_ERROR);
+    if(!$this->connection) $this->addDatabaseError("No database connection established!");
     $result = mysql_query($query, $this->connection);
     $this->_affectedRows = mysql_affected_rows($this->connection);
     if(!$result){
-      $this->database["error"] = mysql_error();
+      $this->addDatabaseError(mysql_error());
       return false;
     } elseif($result && $result != 1){
       $data = array();
@@ -437,6 +441,12 @@ class TableGear
   function getTable()
   {
     if(!$this->data) $this->data = array();
+    if($this->database["error"]){
+      $this->_openTag("div", array("class" => "error"));
+      $this->_outputHTML("Database error: " . $this->database["error"]);
+      $this->_closeTag("div");
+      return;
+    }
     if($this->form){
       $this->_openTag("form", array("action" => $this->form["url"], "method" => $this->form["method"], "id" => $this->form["id"], "class" => $this->form["class"]));
       $this->_outputHTML($this->custom["FORM_TOP"]);
@@ -572,6 +582,7 @@ class TableGear
 
   function getJavascript($library, $id = null)
   {
+    if($this->database["error"]) return;
     if(!$id) $id = $this->table["id"];
     $editableCellsPerRow = count(array_unique($this->editableFields));
     $options = array("noDataMessage" => $this->noDataMessage, "editableCellsPerRow" => $editableCellsPerRow);

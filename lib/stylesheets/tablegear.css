@@ -160,3 +160,13 @@ form.newRow td.delete {
 {
   text-align: center;
 }
+
+div.error {
+  margin: 20px;
+  padding: 20px;
+  background-color: #222;
+  color: #d44;
+  font-weight: bold;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+}
