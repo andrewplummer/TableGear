@@ -11,8 +11,9 @@ understand.
 * Changes in auto incremented values are now reflected in the table.
 * The primary key field is no longer hidden by default.
 * database["columns"] changed to database["fields"]
+* database["database"] changed to database["name"]
+* database["host"] now allowed in addition to database["server"]
 * All fields except auto increment field are now editable by default.
 * Both "host" and "server" are now accepted to specify the DB server.
-* Allowed transformed data to be returned from the server with the transform
-applied.
+* Allowed transformed data to be returned from the server with the transform applied.
 
