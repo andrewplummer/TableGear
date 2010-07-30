@@ -580,7 +580,7 @@ class TableGear
     echo "\n";
   }
 
-  function getJavascript($library, $id = null)
+  function getJavascript($library = "jquery", $id = null)
   {
     if($this->database["error"]) return;
     if(!$id) $id = $this->table["id"];
