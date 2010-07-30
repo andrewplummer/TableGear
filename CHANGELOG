@@ -2,14 +2,17 @@
 
 2010-07-03 - Version 1.6
 
+* jQuery client plugin added.
 * General refactoring of directory structure.
 * Composite primary keys now allowed.
 * Added templates and make options hash commented and much easier to
 understand.
 * Custom queries can now save back to the table.
 * Changes in auto incremented values are now reflected in the table.
-* The primary key is no longer hidden by default.
+* The primary key field is no longer hidden by default.
 * database["columns"] changed to database["fields"]
 * All fields except auto increment field are now editable by default.
 * Both "host" and "server" are now accepted to specify the DB server.
+* Allowed transformed data to be returned from the server with the transform
+applied.
 
