@@ -14,6 +14,7 @@
 //
 
 include("../lib/include/TableGear1.6.php");
+include("../config.php");
 
 $options = array();
 $options["database"] = array();
@@ -26,9 +27,9 @@ $options["pagination"] = array();
 
 // Basic database information. These are required.
 
-$options["database"]["name"]        = "demos";
-$options["database"]["username"]    = "root";
-$options["database"]["password"]    = "";
+$options["database"]["name"]        = DATABASE_NAME;
+$options["database"]["username"]    = DATABASE_USER;
+$options["database"]["password"]    = DATABASE_PASS;
 $options["database"]["table"]       = "labs_tablegear";
 
 
@@ -54,7 +55,7 @@ $options["database"]["table"]       = "labs_tablegear";
 // $options["database"]["sort"]       = "<FIELD1>";                      // Sorting on a single field.
 // $options["database"]["sort"]       = array("<FIELD1>", "<FIELD2>");   // Sorting on multiple fields.
 
-$options["database"]["sort"] = "title DESC ";
+//$options["database"]["sort"] = "title DESC ";
 
 
 // -- Database Fields
@@ -62,7 +63,7 @@ $options["database"]["sort"] = "title DESC ";
 // This option will limit the fields selected in
 // the auto query to those specified in the array.
 
-$options["database"]["fields"]   = array("id", "title", "date","price","number", "memory","image");
+//$options["database"]["fields"]   = array("id", "title", "date","price","number", "memory","image");
 
 
 // -- noAutoQuery (for custom queries)
@@ -116,7 +117,7 @@ $options["editable"]  = "all";
 
 // $options["textareas"] = array("<FIELD1>", "<FIELD2>", "ETC...");
 
-$options["textareas"] = array("title");
+//$options["textareas"] = array("title");
 
 
 // -- Select Elements
@@ -147,8 +148,7 @@ $options["textareas"] = array("title");
 
 // $options["selects"] = array("number" => "increment[range=11,step=86400]");
 
-
-$options["selects"] = array("number" => "increment[range=11,step=86400,min=0]");
+$options["selects"] = array("description" => array("Yes, buff", "No, scuff", "Maybe, So"));
 
 
 
@@ -305,7 +305,7 @@ $options["headers"] = array("price" => array("tag" => "div", "html" => "You got 
 $options["columns"] = array("price" => "wowzers");
 $options["transform"]["image"] = array("tag" => "img", "attrib" => array("src" => "{DATA}"));
 
-$options["shiftColumns"] = array("title" => 6);
+//$options["shiftColumns"] = array("title" => 6);
 
 
 $options["custom"]["FORM_TOP"] = "Top of the form to ya!";

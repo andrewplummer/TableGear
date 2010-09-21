@@ -30,7 +30,7 @@ $options["pagination"] = array();
 $options["database"]["name"]        = DATABASE_NAME;
 $options["database"]["username"]    = DATABASE_USER;
 $options["database"]["password"]    = DATABASE_PASS;
-$options["database"]["table"]       = "labs_tablegear2";
+$options["database"]["table"]       = "apples";
 
 
 
@@ -40,7 +40,7 @@ $options["database"]["table"]       = "labs_tablegear2";
 // deleteRowLabel  = Text or an element that is used for the delete label.
 //                   This accepts a string or an HTML object (more info above).
 //
- $options["allowDelete"] = true;
+// $options["allowDelete"] = true;
 //
 // $options["deleteRowLabel"] = "×";  // A simple character.
 // $options["deleteRowLabel"] = array("tag" => "img", "attrib" => array("src" => "images/delete.gif")); // Default delete image.
@@ -55,7 +55,7 @@ $options["database"]["table"]       = "labs_tablegear2";
 // $options["database"]["sort"]       = "<FIELD1>";                      // Sorting on a single field.
 // $options["database"]["sort"]       = array("<FIELD1>", "<FIELD2>");   // Sorting on multiple fields.
 
-// $options["database"]["sort"] = "title DESC ";
+//$options["database"]["sort"] = "title DESC ";
 
 
 // -- Database Fields
@@ -63,7 +63,7 @@ $options["database"]["table"]       = "labs_tablegear2";
 // This option will limit the fields selected in
 // the auto query to those specified in the array.
 
-// $options["database"]["fields"]   = array("id", "title", "date","price","number", "memory","image");
+//$options["database"]["fields"]   = array("id", "title", "date","price","number", "memory","image");
 
 
 // -- noAutoQuery (for custom queries)
@@ -86,7 +86,7 @@ $options["database"]["table"]       = "labs_tablegear2";
 // $options["database"]["fetchEmptyRow"] = true;
 
 
-$options["database"]["fetchEmptyRow"] = true;
+//$options["database"]["fetchEmptyRow"] = true;
 
 
 // Note that the following 3 options (sortable, editable, textareas, and selects) can also
@@ -109,7 +109,6 @@ $options["database"]["fetchEmptyRow"] = true;
 // $options["editable"]  = array("<FIELD1>", "<FIELD2", "ETC...");
 
 
-$options["editable"]  = "all";
 
 // -- Textareas
 //
@@ -117,7 +116,6 @@ $options["editable"]  = "all";
 
 // $options["textareas"] = array("<FIELD1>", "<FIELD2>", "ETC...");
 
-//$options["textareas"] = array("title");
 
 
 // -- Select Elements
@@ -149,8 +147,6 @@ $options["editable"]  = "all";
 // $options["selects"] = array("number" => "increment[range=11,step=86400]");
 
 
-//$options["selects"] = array("number" => "increment[range=11,step=86400,min=0]");
-$options["selects"] = array("field2" => array('yes, bess', 'no, bro'));
 
 
 
@@ -168,7 +164,7 @@ $options["selects"] = array("field2" => array('yes, bess', 'no, bro'));
 
 
 
-$options["formatting"]["date"] = "date"; // Formats a date using a custom format (here "2010-01-01").
+//$options["formatting"]["date"] = "date"; // Formats a date using a custom format (here "2010-01-01").
 
 
 
@@ -188,7 +184,7 @@ $options["formatting"]["date"] = "date"; // Formats a date using a custom format
 // $options["formatting"]  = array("<FIELD>" => "currency[prefix=$,thousands=.");          // $4.000
 
 
-$options["formatting"]["price"] = "currency[prefix=$,pad=true,suffix= USD"; // $4,000.00 USD
+//$options["formatting"]["price"] = "currency[prefix=$,pad=true,suffix= USD"; // $4,000.00 USD
 
 // -- Numeric formatting
 //
@@ -202,7 +198,7 @@ $options["formatting"]["price"] = "currency[prefix=$,pad=true,suffix= USD"; // $
 // $options["formatting"]  = array("<FIELD>" => "numeric[precision=2,thousands= ,decimal=COMMA]");  // 5 376,24
 
 
-$options["formatting"]["number"] = "numeric[precision=-2";                             // 5,376.24
+//$options["formatting"]["number"] = "numeric[precision=-2";                             // 5,376.24
 
 
 // -- Memory formatting
@@ -225,7 +221,7 @@ $options["formatting"]["number"] = "numeric[precision=-2";                      
 // $options["formatting"]  = array("<FIELD>" => "memory[auto,unit=kb,precision=2,small]"); // 24.42kb
 
 
-$options["formatting"]["memory"] = "memory[auto]";
+//$options["formatting"]["memory"] = "memory[auto]";
 
 
 
@@ -277,7 +273,7 @@ $options["formatting"]["memory"] = "memory[auto]";
 
 
 
-$options["inputFormat"] = array("date" => "date");            // Accepts human-readable dates like "January 1, 2001" or "tomorrow".
+//$options["inputFormat"] = array("date" => "date");            // Accepts human-readable dates like "January 1, 2001" or "tomorrow".
 
 
 // -- Pagination
@@ -301,21 +297,10 @@ $options["inputFormat"] = array("date" => "date");            // Accepts human-r
 // $options["pagination"]["linkCount"] = 2; //  2 links on each side of the current page.
 
 
-
-$options["title"] = "Lovely Table";
-$options["headers"] = array("price" => array("tag" => "div", "html" => "You got punk'd!"));
-$options["columns"] = array("price" => "wowzers");
-$options["transform"]["image"] = array("tag" => "img", "attrib" => array("src" => "{DATA}"));
-
-$options["shiftColumns"] = array("title" => 6);
+$options["selects"] = array("color_id" => array("red" => 1, "green" => 2, "gold" => 3, "blue" => 4, "grey" => 5));             // Will output <option value="yes">yes</option>, etc.
 
 
-$options["custom"]["FORM_TOP"] = "Top of the form to ya!";
-$options["custom"]["FORM_BOTTOM"] = "Dark down here...";
-
-$options["custom"]["TABLE_TOP"] = "On top of ol' table.";
-$options["custom"]["TABLE_BOTTOM"] = "Get under the table!";
-
+$options["database"]["join"] = array("table" => "colors", "key" => "id", "foreign_key" => "color_id");
 
 // Instanciates the table. This must be included here!
 
@@ -331,7 +316,7 @@ $table = new TableGear($options);
 // $table->fetchData("SELECT SQL_CALC_FOUND_ROWS <FIELD1>,<FIELD2> FROM <DATABASE_TABLE> WHERE <etc..>");
 
 
-
+//$table->fetchData("SELECT apples.id,name,color AS color_id from apples LEFT JOIN colors ON apples.color_id=colors.id");
 
 
 
@@ -341,9 +326,9 @@ $table = new TableGear($options);
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <title>TableGear for MooTools</title>
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.2.4/mootools-yui-compressed.js"></script>
-  <script type="text/javascript" src="../lib/javascripts/TableGear1.6-MooTools.js"></script>
+  <title>TableGear for jQuery</title>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  <script type="text/javascript" src="../lib/javascripts/TableGear1.6-jQuery.js"></script>
   <link type="text/css" rel="stylesheet" href="../lib/stylesheets/tablegear.css" />
   <style type="text/css">
 
@@ -357,6 +342,6 @@ $table = new TableGear($options);
   <div>
     <?= $table->getTable() ?>
   </div>
-<?= $table->getJavascript("mootools") ?>
+<?= $table->getJavascript("jquery") ?>
 </body>
 </html>

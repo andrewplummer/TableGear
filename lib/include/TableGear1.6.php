@@ -92,7 +92,9 @@ class TableGear
 
   function query($query)
   {
-    //echo "<br/>QUERY: $query<br/>"; // Leave for debug
+    if($this->debug){
+      echo "<br/>QUERY: $query<br/>";
+    }
     if(!$this->connection) $this->addDatabaseError("No database connection established!");
     $result = mysql_query($query, $this->connection);
     $this->_affectedRows = mysql_affected_rows($this->connection);
@@ -126,10 +128,26 @@ class TableGear
       $sort = $this->_getPrimaryKeyNamesAsString(",");
     }
     $auto_query = !isset($query);
+    if($this->database["join"]){
+      $join_data  = $this->database["join"];
+      $join_table = $join_data["table"];
+      $join_fk    = $join_data["foreign_key"];
+      $join_key   = $join_data["key"] ? $join_data["key"] : "id";
+      $join = "LEFT JOIN $join_table ON $join_table.$join_key=$table.$join_fk";
+      if($this->database["fields"]){
+        $fields_id_index = array_search("id", $this->database["fields"]);
+        if($fields_id_index !== false){
+          $this->database["fields"][$fields_id_index] = "$table.id";
+        }
+      }
+      if($sort == "id"){
+        $sort = "$table.id";
+      }
+    }
     if($auto_query){
       if(!$this->database["table"]) return;
       $fields = $this->database["fields"] ? implode(",", $this->database["fields"]) : "*";
-      $query = "SELECT SQL_CALC_FOUND_ROWS $fields FROM $table ORDER BY $sort$desc";
+      $query = "SELECT SQL_CALC_FOUND_ROWS $fields FROM $table $join ORDER BY $sort$desc";
     }
     if($this->pagination){
       if(!$auto_query && isset($sort)){
