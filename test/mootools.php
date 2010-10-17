@@ -150,7 +150,6 @@ $options["editable"]  = "all";
 
 
 //$options["selects"] = array("number" => "increment[range=11,step=86400,min=0]");
-$options["selects"] = array("field2" => array('yes, bess', 'no, bro'));
 
 
 
@@ -302,33 +301,25 @@ $options["inputFormat"] = array("date" => "date");            // Accepts human-r
 
 
 
-$options["title"] = "Lovely Table";
-$options["headers"] = array("price" => array("tag" => "div", "html" => "You got punk'd!"));
-$options["columns"] = array("price" => "wowzers");
-$options["transform"]["image"] = array("tag" => "img", "attrib" => array("src" => "{DATA}"));
+$options["custom"]["form_top"] = "top of the form to ya!";
+$options["custom"]["form_bottom"] = "dark down here...";
 
-$options["shiftColumns"] = array("title" => 6);
-
-
-$options["custom"]["FORM_TOP"] = "Top of the form to ya!";
-$options["custom"]["FORM_BOTTOM"] = "Dark down here...";
-
-$options["custom"]["TABLE_TOP"] = "On top of ol' table.";
-$options["custom"]["TABLE_BOTTOM"] = "Get under the table!";
+$options["custom"]["table_top"] = "on top of ol' table.";
+$options["custom"]["table_bottom"] = "get under the table!";
 
 
-// Instanciates the table. This must be included here!
+// instanciates the table. this must be included here!
 
-$table = new TableGear($options);
+$table = new tablegear($options);
 
 
 
-// If you need to use a custom query instead of the default (fetching everything), you can specify it here.
-// You can use any syntax in the query you want, however you MUST include the primary key field in the SELECT
-// clause, otherwise none of the editing functionality will work! Also, if you need pagination on the table
-// you MUST include "SQL_CALC_FOUND_ROWS" after the SELECT clause and not have any LIMIT or ORDER BY clauses!
+// if you need to use a custom query instead of the default (fetching everything), you can specify it here.
+// you can use any syntax in the query you want, however you must include the primary key field in the select
+// clause, otherwise none of the editing functionality will work! also, if you need pagination on the table
+// you must include "sql_calc_found_rows" after the select clause and not have any limit or order by clauses!
 //
-// $table->fetchData("SELECT SQL_CALC_FOUND_ROWS <FIELD1>,<FIELD2> FROM <DATABASE_TABLE> WHERE <etc..>");
+// $table->fetchdata("select sql_calc_found_rows <field1>,<field2> from <database_table> where <etc..>");
 
 
 

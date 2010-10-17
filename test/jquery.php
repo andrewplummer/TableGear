@@ -1,4 +1,4 @@
-<?
+<?php
 
 
 //
@@ -30,8 +30,8 @@ $options["pagination"] = array();
 $options["database"]["name"]        = DATABASE_NAME;
 $options["database"]["username"]    = DATABASE_USER;
 $options["database"]["password"]    = DATABASE_PASS;
-$options["database"]["table"]       = "labs_tablegear";
-
+$options["database"]["table"]       = "labs_tablegear2";
+$options["database"]["utf8"]        = true;
 
 
 // -- Row Deletion
@@ -86,7 +86,7 @@ $options["database"]["table"]       = "labs_tablegear";
 // $options["database"]["fetchEmptyRow"] = true;
 
 
-$options["database"]["fetchEmptyRow"] = true;
+//$options["database"]["fetchEmptyRow"] = true;
 
 
 // Note that the following 3 options (sortable, editable, textareas, and selects) can also
@@ -148,9 +148,6 @@ $options["editable"]  = "all";
 
 // $options["selects"] = array("number" => "increment[range=11,step=86400]");
 
-$options["selects"] = array("description" => array("Yes, buff", "No, scuff", "Maybe, So"));
-
-
 
 // -- Data Formatting
 //
@@ -163,10 +160,6 @@ $options["selects"] = array("description" => array("Yes, buff", "No, scuff", "Ma
 //
 // $options["formatting"]  = array("<FIELD>" => "date"); // Formats a date in the format "January 1, 2010".
 // $options["formatting"]  = array("<FIELD>" => "date[Y-m-d]"); // Formats a date using a custom format (here "2010-01-01").
-
-
-
-$options["formatting"]["date"] = "date"; // Formats a date using a custom format (here "2010-01-01").
 
 
 
@@ -186,7 +179,6 @@ $options["formatting"]["date"] = "date"; // Formats a date using a custom format
 // $options["formatting"]  = array("<FIELD>" => "currency[prefix=$,thousands=.");          // $4.000
 
 
-$options["formatting"]["price"] = "currency[prefix=$,pad=true,suffix= USD"; // $4,000.00 USD
 
 // -- Numeric formatting
 //
@@ -199,8 +191,6 @@ $options["formatting"]["price"] = "currency[prefix=$,pad=true,suffix= USD"; // $
 // $options["formatting"]  = array("<FIELD>" => "numeric[precision=-2");                            // 5,400
 // $options["formatting"]  = array("<FIELD>" => "numeric[precision=2,thousands= ,decimal=COMMA]");  // 5 376,24
 
-
-$options["formatting"]["number"] = "numeric[precision=-2";                             // 5,376.24
 
 
 // -- Memory formatting
@@ -223,8 +213,6 @@ $options["formatting"]["number"] = "numeric[precision=-2";                      
 // $options["formatting"]  = array("<FIELD>" => "memory[auto,unit=kb,precision=2,small]"); // 24.42kb
 
 
-$options["formatting"]["memory"] = "memory[auto]";
-
 
 
 // -- Totals
@@ -233,9 +221,6 @@ $options["formatting"]["memory"] = "memory[auto]";
 //
 // $options["totals"] = array("<FIELD1>", "<FIELD2>", "etc...");
 //
-
-
-$options["totals"] = array("memory","number");
 
 
 
@@ -275,8 +260,6 @@ $options["totals"] = array("memory","number");
 
 
 
-$options["inputFormat"] = array("date" => "date");            // Accepts human-readable dates like "January 1, 2001" or "tomorrow".
-
 
 // -- Pagination
 //
@@ -299,26 +282,12 @@ $options["inputFormat"] = array("date" => "date");            // Accepts human-r
 // $options["pagination"]["linkCount"] = 2; //  2 links on each side of the current page.
 
 
-
-$options["title"] = "Lovely Table";
-$options["headers"] = array("price" => array("tag" => "div", "html" => "You got punk'd!"));
-$options["columns"] = array("price" => "wowzers");
-$options["transform"]["image"] = array("tag" => "img", "attrib" => array("src" => "{DATA}"));
-
 //$options["shiftColumns"] = array("title" => 6);
-
-
-$options["custom"]["FORM_TOP"] = "Top of the form to ya!";
-$options["custom"]["FORM_BOTTOM"] = "Dark down here...";
-
-$options["custom"]["TABLE_TOP"] = "On top of ol' table.";
-$options["custom"]["TABLE_BOTTOM"] = "Get under the table!";
 
 
 // Instanciates the table. This must be included here!
 
 $table = new TableGear($options);
-
 
 
 // If you need to use a custom query instead of the default (fetching everything), you can specify it here.
@@ -327,10 +296,6 @@ $table = new TableGear($options);
 // you MUST include "SQL_CALC_FOUND_ROWS" after the SELECT clause and not have any LIMIT or ORDER BY clauses!
 //
 // $table->fetchData("SELECT SQL_CALC_FOUND_ROWS <FIELD1>,<FIELD2> FROM <DATABASE_TABLE> WHERE <etc..>");
-
-
-
-
 
 
 

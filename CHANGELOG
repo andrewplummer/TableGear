@@ -17,3 +17,10 @@ understand.
 * Both "host" and "server" are now accepted to specify the DB server.
 * Allowed transformed data to be returned from the server with the transform applied.
 
+2010-10-17 - Version 1.6.1
+
+* Fixed major bug in the jQuery client where field names in new row were being
+overwritten.
+* Fixed but in PHP where last_insert_id was being blocked by finding the
+primary keys.
+* Added option for utf8 support
