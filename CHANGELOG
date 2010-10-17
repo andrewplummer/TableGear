@@ -24,3 +24,4 @@ overwritten.
 * Fixed but in PHP where last_insert_id was being blocked by finding the
 primary keys.
 * Added option for utf8 support
+* New configuration for test files
