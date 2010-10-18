@@ -13,7 +13,7 @@
 // http://andrewplummer.com/code/tablegear/
 //
 
-include("../lib/include/TableGear1.6.php");
+include("../lib/include/TableGear1.6.1.php");
 include("../config.php");
 
 $options = array();
@@ -110,6 +110,7 @@ $options["database"]["utf8"]        = true;
 
 
 $options["editable"]  = "all";
+$options["showAddNewRow"]  = true;
 
 // -- Textareas
 //
@@ -276,10 +277,10 @@ $options["editable"]  = "all";
 //             etc...
 
 
-// $options["pagination"]["perPage"] = 10;  // 10 rows per page.
-// $options["pagination"]["prev"] = "prev"; // "prev" link will be shown.
-// $options["pagination"]["next"] = "next"; // "next" link will be shown.
-// $options["pagination"]["linkCount"] = 2; //  2 links on each side of the current page.
+ $options["pagination"]["perPage"] = 10;  // 10 rows per page.
+ $options["pagination"]["prev"] = "prev"; // "prev" link will be shown.
+ $options["pagination"]["next"] = "next"; // "next" link will be shown.
+ $options["pagination"]["linkCount"] = 2; //  2 links on each side of the current page.
 
 
 //$options["shiftColumns"] = array("title" => 6);
@@ -306,7 +307,7 @@ $table = new TableGear($options);
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>TableGear for jQuery</title>
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-  <script type="text/javascript" src="../lib/javascripts/TableGear1.6-jQuery.js"></script>
+  <script type="text/javascript" src="../lib/javascripts/TableGear1.6.1-jQuery.js"></script>
   <link type="text/css" rel="stylesheet" href="../lib/stylesheets/tablegear.css" />
   <style type="text/css">
 

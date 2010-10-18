@@ -170,3 +170,7 @@ div.error {
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
 }
+
+.primary_key {
+  display: none;
+}

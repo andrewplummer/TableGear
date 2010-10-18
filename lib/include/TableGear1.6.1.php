@@ -168,7 +168,7 @@ class TableGear
       $result = mysql_query("SELECT FOUND_ROWS() AS total");
       $row = mysql_fetch_assoc($result);
       $this->totalRows = $row["total"];
-      $this->pagination["totalPages"] = ceil($this->totalRows / $this->pagination["perPage"]);
+      $this->pagination["totalPages"] = $this->totalRows == 0 ? 1 : ceil($this->totalRows / $this->pagination["perPage"]);
     }
     if(!$data) return;
     $this->data = array();
@@ -409,8 +409,16 @@ class TableGear
       foreach($columns as $column){
         $field = $column["Field"];
         $header["field"] = $field;
+        $class = "";
         if($this->autoHeaders) $header["html"] = $this->_autoFormatHeader($field);
         else $header["html"] = $field;
+        if($column["Key"] == "PRI"){
+          $class = $this->_addClass("primary_key", $class);
+        }
+        if(stripos($column["Extra"], "auto_increment") !== false){
+          $class = $this->_addClass("auto_increment", $class);
+        }
+        $header["attrib"] =  array("class" => $class);
         array_push($headers, $header);
       }
     }
@@ -605,7 +613,7 @@ class TableGear
     if($this->database["error"]) return;
     if(!$id) $id = $this->table["id"];
     $editableCellsPerRow = count(array_unique($this->editableFields));
-    $options = array("noDataMessage" => $this->noDataMessage, "editableCellsPerRow" => $editableCellsPerRow);
+    $options = array("noDataMessage" => $this->noDataMessage, "editableCellsPerRow" => $editableCellsPerRow, "showAddNewRow" => $this->showAddNewRow);
     if(!$this->_newRowsAllowed()) $options["addNewRows"] = false;
     if($this->pagination) $options["paginated"] = true;
     $options = $this->_jsonEncode($options);
@@ -1119,7 +1127,7 @@ class TableGear
   function _navLink($type, $html)
   {
     $current = $this->pagination["currentPage"];
-    $total = $this->pagination["totalPages"];
+    $total   = $this->pagination["totalPages"];
     $tag = (($type == "prev" && $current <= 1) || ($type == "next" && $current >= $total)) ? "div" : "a";
     $attribs = array("class" => $type);
     if($tag == "a"){

@@ -25,3 +25,5 @@ overwritten.
 primary keys.
 * Added option for utf8 support
 * New configuration for test files
+* Fixed bug with adding new rows with empty db.
+* Added option to always show "addNewRow" link.
