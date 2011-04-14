@@ -3,7 +3,7 @@
 /*
  *  TableGear (Dynamic table data in HTML)
  *
- *  Version: 1.6
+ *  Version: 1.6.2
  *  Documentation: AndrewPlummer.com (http://www.andrewplummer.com/code/tablegear/)
  *  License: MIT-style License
  *

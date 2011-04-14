@@ -13,7 +13,7 @@
 // http://andrewplummer.com/code/tablegear/
 //
 
-include("../lib/include/TableGear1.6.php");
+include("../lib/include/tablegear.php");
 
 $options = array();
 $options["database"] = array();
@@ -328,7 +328,7 @@ $table = new TableGear($options);
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>TableGear for MooTools</title>
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.2.4/mootools-yui-compressed.js"></script>
-  <script type="text/javascript" src="../lib/javascripts/TableGear1.6-MooTools.js"></script>
+  <script type="text/javascript" src="../lib/javascripts/tablegear-mootools.js"></script>
   <link type="text/css" rel="stylesheet" href="../lib/stylesheets/tablegear.css" />
 </head>
 <body>

@@ -13,7 +13,7 @@
 // http://andrewplummer.com/code/tablegear/
 //
 
-include("../lib/include/TableGear1.6.php");
+include("../lib/include/tablegear.php");
 
 $options = array();
 $options["database"] = array();
@@ -323,7 +323,7 @@ $table->fetchData("SELECT SQL_CALC_FOUND_ROWS id,price,memory FROM labs_tablegea
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>TableGear for jQuery</title>
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-  <script type="text/javascript" src="../lib/javascripts/TableGear1.6-jQuery.js"></script>
+  <script type="text/javascript" src="../lib/javascripts/tablegear-jquery.js"></script>
   <link type="text/css" rel="stylesheet" href="../lib/stylesheets/tablegear.css" />
 </head>
 <body>

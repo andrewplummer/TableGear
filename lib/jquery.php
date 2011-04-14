@@ -4,7 +4,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>TableGear for jQuery</title>
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-  <script type="text/javascript" src="javascripts/TableGear1.6-jQuery.js"></script>
+  <script type="text/javascript" src="javascripts/tablegear-jquery.js"></script>
   <link type="text/css" rel="stylesheet" href="stylesheets/tablegear.css" />
 </head>
 <body>

@@ -1,6 +1,6 @@
 <?
 
-include("include/TableGear1.6.php");
+include("include/tablegear.php");
 
 //
 // TableGear Usage:
