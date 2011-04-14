@@ -27,10 +27,10 @@ $options["pagination"] = array();
 
 // Basic database information. These are required.
 
-$options["database"]["name"]        = DATABASE_NAME;
-$options["database"]["username"]    = DATABASE_USER;
-$options["database"]["password"]    = DATABASE_PASS;
-$options["database"]["table"]       = "labs_tablegear2";
+$options["database"]["name"]     = "tg";
+$options["database"]["username"] = "root";
+$options["database"]["password"] = "";
+$options["database"]["table"]    = "tablegear";
 $options["database"]["utf8"]        = true;
 
 
@@ -303,18 +303,6 @@ $table = new TableGear($options);
 //
 // $table->fetchData("SELECT SQL_CALC_FOUND_ROWS <FIELD1>,<FIELD2> FROM <DATABASE_TABLE> WHERE <etc..>");
 
-$o2 = array();
-$o2["database"] = array();
-$o2["database"]["name"]        = DATABASE_NAME;
-$o2["database"]["username"]    = DATABASE_USER;
-$o2["database"]["password"]    = DATABASE_PASS;
-$o2["database"]["table"]       = "labs_tablegear";
-$o2["database"]["utf8"]        = true;
-
-
-
-$t2 = new TableGear($o2);
-
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -336,11 +324,6 @@ $t2 = new TableGear($o2);
   <div>
     <?= $table->getTable() ?>
   </div>
-  <p>--------------------------- hey let's take a break! --------------------</p>
-  <div>
-    <?= $t2->getTable() ?>
-  </div>
   <?= $table->getJavascript("jquery") ?>
-  <?= $t2->getJavascript("jquery") ?>
 </body>
 </html>
