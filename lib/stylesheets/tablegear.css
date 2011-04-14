@@ -146,14 +146,18 @@ form.newRow td.delete {
   color: #6666ff;
 }
 
-.pagination .prev 
+.pagination .prev,
+.pagination .first
 {
   float: left;
+  margin-right: 4px;
 }
 
-.pagination .next
+.pagination .next,
+.pagination .last
 {
   float: right;
+  margin-left: 4px;
 }
 
 .pagination .pages

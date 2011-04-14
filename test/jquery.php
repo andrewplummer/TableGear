@@ -281,6 +281,8 @@ $options["showAddNewRow"]  = true;
  $options["pagination"]["prev"] = "prev"; // "prev" link will be shown.
  $options["pagination"]["next"] = "next"; // "next" link will be shown.
  $options["pagination"]["linkCount"] = 2; //  2 links on each side of the current page.
+ $options["pagination"]["first"] = true;  // Show "first" link.
+ $options["pagination"]["last"] = true;   // Show "last" link.
 
  $options["transform"] = array(
    'field4' => array('tag' => 'span', 'html' => '{ASSOCIATED}', associate => 'field2')

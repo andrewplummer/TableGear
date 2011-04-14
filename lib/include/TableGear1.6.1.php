@@ -544,8 +544,10 @@ class TableGear
     $this->_closeTag("table");
     if($this->pagination && $this->totalRows > $this->pagination["perPage"]){
       $this->_openTag("div", array("class" => "pagination"));
-      $this->_navLink("prev", $this->pagination["prev"]);
-      $this->_navLink("next", $this->pagination["next"]);
+      $this->_firstPageLink();
+      $this->_adjacentPageLink("prev", $this->pagination["prev"]);
+      $this->_lastPageLink();
+      $this->_adjacentPageLink("next", $this->pagination["next"]);
       $this->_openTag("div", array("class" => "pages"));
       $page = $this->pagination["currentPage"];
       $linkCount = $this->pagination["linkCount"] ? $this->pagination["linkCount"] : 5;
@@ -1125,7 +1127,47 @@ class TableGear
     return $uri;
   }
 
-  function _navLink($type, $html)
+  function _firstPageLink()
+  {
+    $link = $this->pagination["first"];
+    if(!$link) return;
+    $current = $this->pagination["currentPage"];
+    $attribs = array("class" => "first");
+    if($current == 1){
+      $tag = "div";
+    } else {
+      $tag = "a";
+      $attribs["href"] = $this->_injectURLParam("page", 1);
+    }
+    if($link === true){
+      $link = 'first';
+    }
+    $this->_openTag($tag, $attribs);
+    $this->_outputHTML($link);
+    $this->_closeTag($tag);
+  }
+
+  function _lastPageLink()
+  {
+    $link = $this->pagination["last"];
+    if(!$link) return;
+    $total = $this->pagination["totalPages"];
+    $attribs = array("class" => "last");
+    if($current == $total){
+      $tag = "div";
+    } else {
+      $tag = "a";
+      $attribs["href"] = $this->_injectURLParam("page", $total);
+    }
+    if($link === true){
+      $link = 'last';
+    }
+    $this->_openTag($tag, $attribs);
+    $this->_outputHTML($link);
+    $this->_closeTag($tag);
+  }
+
+  function _adjacentPageLink($type, $html)
   {
     $current = $this->pagination["currentPage"];
     $total   = $this->pagination["totalPages"];
