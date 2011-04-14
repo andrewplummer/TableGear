@@ -356,7 +356,8 @@ class TableGear
       foreach($firstRow["data"] as $field => $data){
         $sortable = $this->_testForOption("sortable", $field, $column) ? true : false;
         $sortType = $this->_getSortType($field);
-        $class = $this->_addClass("sortable", null, $sortable);
+        $class = $field;
+        $class = $this->_addClass("sortable", $class, $sortable);
         $class = $this->_addClass($sortType, $class);
         if($this->primaryKeyColumnsByName[$field]){
           $class = $this->_addClass("primary_key", $class);
