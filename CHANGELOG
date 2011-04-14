@@ -1,5 +1,13 @@
 
 
+2011-04-14 - Version 1.6.2
+
+* Added a form to make entering initial database information easier.
+* Sorting rows on delete in jquery plugin.
+* Adding classes to table on pagination as well.
+* Lots of repo cleanup.
+* Added first/last link to pagination.
+
 2010-07-03 - Version 1.6
 
 * jQuery client plugin added.
