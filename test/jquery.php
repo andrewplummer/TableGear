@@ -282,6 +282,9 @@ $options["showAddNewRow"]  = true;
  $options["pagination"]["next"] = "next"; // "next" link will be shown.
  $options["pagination"]["linkCount"] = 2; //  2 links on each side of the current page.
 
+ $options["transform"] = array(
+   'field4' => array('tag' => 'span', 'html' => '{ASSOCIATED}', associate => 'field2')
+   );
 
 //$options["shiftColumns"] = array("title" => 6);
 
@@ -298,7 +301,17 @@ $table = new TableGear($options);
 //
 // $table->fetchData("SELECT SQL_CALC_FOUND_ROWS <FIELD1>,<FIELD2> FROM <DATABASE_TABLE> WHERE <etc..>");
 
+$o2 = array();
+$o2["database"] = array();
+$o2["database"]["name"]        = DATABASE_NAME;
+$o2["database"]["username"]    = DATABASE_USER;
+$o2["database"]["password"]    = DATABASE_PASS;
+$o2["database"]["table"]       = "labs_tablegear";
+$o2["database"]["utf8"]        = true;
 
+
+
+$t2 = new TableGear($o2);
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -321,6 +334,11 @@ $table = new TableGear($options);
   <div>
     <?= $table->getTable() ?>
   </div>
-<?= $table->getJavascript("jquery") ?>
+  <p>--------------------------- hey let's take a break! --------------------</p>
+  <div>
+    <?= $t2->getTable() ?>
+  </div>
+  <?= $table->getJavascript("jquery") ?>
+  <?= $t2->getJavascript("jquery") ?>
 </body>
 </html>
