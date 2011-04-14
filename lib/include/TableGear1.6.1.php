@@ -395,7 +395,7 @@ class TableGear
         if($this->pagination && $this->pagination["totalPages"] != 1){
           $href = $this->_modifyURIParams(array("sort" => $field, "desc" => $desc, "page" => null));
           $link = array("tag" => "a", "html" => $html, "attrib" => array("href" => $href));
-          $header = array("html" => $link);
+          $header = array("html" => $link, "attrib" => array("class" => $class));
         } else {
           $header = array("html" => $html, "attrib" => array("class" => $class, "id" => $userHeader["id"]));
         }
