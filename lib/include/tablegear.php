@@ -35,6 +35,7 @@ class TableGear
   function TableGear($options)
   {
     global $tgTableID;
+    $this->checkFirstDatabaseInit($options);
     $this->editableFields = array();
     $options = $this->_setDefaults($options);
     if($options["editable"]) $this->form = array("url" => $_SERVER["REQUEST_URI"], "method" => "post", "submit" => "Update");
@@ -60,15 +61,16 @@ class TableGear
 
   function _errorOnRequiredFields()
   {
-    $this->_errorOnField($this->database["name"], "<DATABASE_NAME>", "Database required.");
-    $this->_errorOnField($this->database["username"], "<DATABASE_USERNAME>", "Username required.");
-    $this->_errorOnField($this->database["table"], "<DATABASE_TABLE>", "Table required.");
+    $this->_errorOnField($this->database["name"], "", "Database required.");
+    $this->_errorOnField($this->database["username"], "", "Username required.");
+    $this->_errorOnField($this->database["table"], "", "Table required.");
   }
 
   function _errorOnField($field, $default, $message)
   {
     if(!isset($field) || $field == $default){
       $this->addDatabaseError($message);
+      $this->noInit = true;
     }
   }
 
@@ -82,7 +84,10 @@ class TableGear
     else                $server = "localhost";
 
     $this->connection = mysql_connect($server, $db["username"], $db["password"]);
-    if(!mysql_select_db($db["name"], $this->connection)) $this->addDatabaseError("Database not found.");
+    if(!mysql_select_db($db["name"], $this->connection)){
+      $this->addDatabaseError("Database not found.");
+      $this->databaseErrored = true;
+    }
     if($db['utf8']) mysql_query('SET NAMES UTF8');
   }
 
@@ -464,6 +469,83 @@ class TableGear
 
 
 
+  function buildErrorHTML()
+  {
+    $html = <<<TOP
+     <form method="post" class="database_initialize">
+       <h3>Setup</h3>
+       <div class="explanation">
+         <p>You need to setup your database info. This is only required once.</p>
+         <p>You can always change this data later by changing the index.php file.</p>
+       </div>
+TOP;
+    if($_SESSION["init_error"]){
+      $html .= '<p class="error">All fields required.</p>';
+      unset($_SESSION["init_error"]);
+    }
+    if($_SESSION["init_unwriteable"]){
+      $html .= '<p class="error">Template file is not writeable. Please edit manually!</p>';
+      unset($_SESSION["init_unwriteable"]);
+    }
+    if($this->database["error"] != 'Database required.'){
+      $html .= '<p class="error">' . $this->database["error"] . '</p>';
+    }
+    $html .= <<<BOTTOM
+       <p>
+         <label>Database Name</label>
+         <input type="text" name="database" value="{DATABASE_NAME}" />
+       </p>
+       <p>
+         <label>Database Username</label>
+         <input type="text" name="username" value="{DATABASE_USERNAME}" />
+       </p>
+       <p>
+         <label>Database Password</label>
+         <input type="password" name="password" value="{DATABASE_PASSWORD}" />
+       </p>
+       <p>
+         <label>Database Table</label>
+         <input type="text" name="table" value="{DATABASE_TABLE}" />
+       </p>
+       <p class="submit">
+         <input type="submit" value="Set" />
+       </p>
+     </form>
+BOTTOM;
+    $html = str_replace('{DATABASE_NAME}', $this->database["name"], $html);
+    $html = str_replace('{DATABASE_USERNAME}', $this->database["username"], $html);
+    $html = str_replace('{DATABASE_PASSWORD}', $this->database["password"], $html);
+    $html = str_replace('{DATABASE_TABLE}', $this->database["table"], $html);
+    echo $html;
+  }
+
+
+  function checkFirstDatabaseInit(&$options)
+  {
+    if(empty($_POST)) return;
+    if(!$_POST["database"] || !$_POST["username"] || !$_POST["table"]){
+      $_SESSION["init_error"] = true;
+      return;
+    }
+    $file = "../index.php";
+    $file = $_SERVER["SCRIPT_FILENAME"];
+    $data = file_get_contents($file);
+    $data = preg_replace('/\$options\["database"\]\["name"\].*/', '$options["database"]["name"]     = "'.$_POST["database"].'";', $data);
+    $data = preg_replace('/\$options\["database"\]\["username"\].*/', '$options["database"]["username"] = "'.$_POST["username"].'";', $data);
+    $data = preg_replace('/\$options\["database"\]\["password"\].*/', '$options["database"]["password"] = "'.$_POST["password"].'";', $data);
+    $data = preg_replace('/\$options\["database"\]\["table"\].*/', '$options["database"]["table"]    = "'.$_POST["table"].'";', $data);
+    $data = preg_replace('/\r\n/', "\n", $data);
+    $result = file_put_contents($file, $data);
+    if($result){
+      $options["database"]["name"] = $_POST["database"];
+      $options["database"]["username"] = $_POST["username"];
+      $options["database"]["password"] = $_POST["password"];
+      $options["database"]["table"] = $_POST["table"];
+    } else {
+      $_SESSION["init_unwriteable"] = true;
+    }
+  }
+
 
   /* Functions for handling options and working with HTML */
 
@@ -471,10 +553,12 @@ class TableGear
   {
     if(!$this->data) $this->data = array();
     if($this->database["error"]){
-      $this->_openTag("div", array("class" => "error"));
-      $this->_outputHTML("Database error: " . $this->database["error"]);
-      $this->_closeTag("div");
+      $this->buildErrorHTML();
       return;
+      //$this->_openTag("div", array("class" => "error"));
+      //$this->_outputHTML("Database error: " . $this->database["error"]);
+      //$this->_closeTag("div");
+      //return;
     }
     if($this->form){
       $this->_openTag("form", array("action" => $this->form["url"], "method" => $this->form["method"], "id" => $this->form["id"], "class" => $this->form["class"]));

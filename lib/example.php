@@ -25,10 +25,10 @@ $options["pagination"] = array();
 
 // Basic database information. These are required.
 
-$options["database"]["name"]        = "<DATABASE_NAME>";
-$options["database"]["username"]    = "<DATABASE_USERNAME>";
-$options["database"]["password"]    = "<DATABASE_PASSWORD>";
-$options["database"]["table"]       = "<DATABASE_TABLE>";
+$options["database"]["name"]        = "";
+$options["database"]["username"]    = "";
+$options["database"]["password"]    = "";
+$options["database"]["table"]       = "";
 
 
 

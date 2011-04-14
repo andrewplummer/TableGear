@@ -173,8 +173,69 @@ div.error {
   font-weight: bold;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
+  border-radius: 5px;
 }
 
 .primary_key {
   display: none;
 }
+
+form.database_initialize {
+  background-color: #eee;
+  border: 1px solid #888;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  width: 400px;
+  margin: 50px auto;
+}
+
+form.database_initialize h3 {
+  font-size: 18px;
+  margin: 0px;
+}
+
+form.database_initialize .explanation {
+  margin-bottom: 10px;
+}
+
+form.database_initialize .explanation p {
+  margin: 0px;
+  font-size: 12px;
+  color: #666;
+}
+
+form.database_initialize p {
+  margin: 0px 0px 10px 0px;
+}
+
+form.database_initialize .error {
+  font-size: 12px;
+  font-weight: bold;
+  color: #b00;
+}
+
+form.database_initialize label {
+  display: block;
+  font-size: 12px;
+  font-weight: bold;
+  color: #b80;
+}
+
+form.database_initialize input[type=text],
+form.database_initialize input[type=password] {
+  display: block;
+  font-size: 18px;
+  padding: 2px;
+  width: 390px;
+}
+
+form.database_initialize .submit {
+  margin: 20px 0px 0px 0px;
+  text-align: right;
+}
+
+form.database_initialize .submit input {
+  cursor: pointer;
+}
+
