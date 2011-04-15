@@ -27,11 +27,11 @@ $options["pagination"] = array();
 
 // Basic database information. These are required.
 
-$options["database"]["name"]     = "tg";
-$options["database"]["username"] = "root";
-$options["database"]["password"] = "";
+$options["database"]["name"]     = DATABASE_NAME;
+$options["database"]["username"] = DATABASE_USER;
+$options["database"]["password"] = DATABASE_PASS;
 $options["database"]["table"]    = "tablegear";
-$options["database"]["utf8"]        = true;
+//$options["database"]["utf8"]     = true;
 
 
 // -- Row Deletion

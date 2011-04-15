@@ -699,8 +699,7 @@ BOTTOM;
   {
     if($this->database["error"]) return;
     if(!$id) $id = $this->table["id"];
-    $editableCellsPerRow = count(array_unique($this->editableFields));
-    $options = array("noDataMessage" => $this->noDataMessage, "editableCellsPerRow" => $editableCellsPerRow, "showAddNewRow" => $this->showAddNewRow);
+    $options = array("noDataMessage" => $this->noDataMessage, "showAddNewRow" => $this->showAddNewRow);
     if(!$this->_newRowsAllowed()) $options["addNewRows"] = false;
     if($this->pagination) $options["paginated"] = true;
     $options = $this->_jsonEncode($options);

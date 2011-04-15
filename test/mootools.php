@@ -13,8 +13,8 @@
 // http://andrewplummer.com/code/tablegear/
 //
 
-include("../lib/include/tablegear.php");
-include("../config.php");
+require("../lib/include/tablegear.php");
+require("../config.php");
 
 $options = array();
 $options["database"] = array();
@@ -27,10 +27,10 @@ $options["pagination"] = array();
 
 // Basic database information. These are required.
 
-$options["database"]["name"]        = DATABASE_NAME;
-$options["database"]["username"]    = DATABASE_USER;
-$options["database"]["password"]    = DATABASE_PASS;
-$options["database"]["table"]       = "labs_tablegear2";
+$options["database"]["name"]     = DATABASE_NAME;
+$options["database"]["username"] = DATABASE_USER;
+$options["database"]["password"] = DATABASE_PASS;
+$options["database"]["table"]    = 'tablegear';
 
 
 
