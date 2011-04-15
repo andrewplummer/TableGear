@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /*
  *  TableGear (Dynamic table data in HTML)
