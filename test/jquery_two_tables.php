@@ -72,7 +72,7 @@ $options["database"]["utf8"]        = true;
 // Turn this on when using custom queries (fetchData). Note that "table" above is still necessary for
 // update/insert to work.
 
-// $options["database"]["noAutoQuery"] = true;
+$options["database"]["noAutoQuery"] = true;
 
 
 
@@ -308,12 +308,20 @@ $o2["database"] = array();
 $o2["database"]["name"]        = DATABASE_NAME;
 $o2["database"]["username"]    = DATABASE_USER;
 $o2["database"]["password"]    = DATABASE_PASS;
-$o2["database"]["table"]       = "labs_tablegear";
+$o2["database"]["table"]       = "tablegear";
 $o2["database"]["utf8"]        = true;
 
 
 
+$query = "select SQL_CALC_FOUND_ROWS * from tablegear where description like 'a%'";
+$table->fetchData($query);
+
+
+$o2["database"]["noAutoQuery"] = true;
 $t2 = new TableGear($o2);
+
+$q2 = "select SQL_CALC_FOUND_ROWS * from tablegear where description like 'b%'";
+$t2->fetchData($q2);
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
