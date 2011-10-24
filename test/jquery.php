@@ -30,7 +30,7 @@ $options["pagination"] = array();
 $options["database"]["name"]     = DATABASE_NAME;
 $options["database"]["username"] = DATABASE_USER;
 $options["database"]["password"] = DATABASE_PASS;
-$options["database"]["table"]    = "tablegear";
+$options["database"]["table"]    = "products";
 //$options["database"]["utf8"]     = true;
 
 
@@ -109,8 +109,10 @@ $options["database"]["table"]    = "tablegear";
 // $options["editable"]  = array("<FIELD1>", "<FIELD2", "ETC...");
 
 
-$options["editable"]  = "all";
+// $options["editable"]  = "all"; Defaults to all except auto increment
 $options["showAddNewRow"]  = true;
+$options["defaultFields"] = array("description" => "FOOBAR");
+$options["columns"] = array("description" => "description");
 
 // -- Textareas
 //
@@ -313,6 +315,10 @@ $table = new TableGear($options);
   <script type="text/javascript" src="../lib/javascripts/tablegear-jquery.js"></script>
   <link type="text/css" rel="stylesheet" href="../lib/stylesheets/tablegear.css" />
   <style type="text/css">
+
+.description {
+display: none;
+}
 
 .wowzers {
   background-color: #ffe2e2;
