@@ -333,8 +333,8 @@ $table = new TableGear($options);
 </head>
 <body>
   <div>
-    <?= $table->getTable() ?>
+    <?php $table->getTable() ?>
   </div>
-<?= $table->getJavascript("jquery") ?>
+<?php $table->getJavascript("jquery") ?>
 </body>
 </html>

@@ -346,8 +346,8 @@ $table = new tablegear($options);
 </head>
 <body>
   <div>
-    <?= $table->getTable() ?>
+    <?php $table->getTable() ?>
   </div>
-<?= $table->getJavascript("mootools") ?>
+<?php $table->getJavascript("mootools") ?>
 </body>
 </html>

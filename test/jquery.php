@@ -27,10 +27,10 @@ $options["pagination"] = array();
 
 // Basic database information. These are required.
 
-$options["database"]["name"]     = DATABASE_NAME;
-$options["database"]["username"] = DATABASE_USER;
-$options["database"]["password"] = DATABASE_PASS;
-$options["database"]["table"]    = "products";
+$options["database"]["name"]     = "tablegear";
+$options["database"]["username"] = "root";
+$options["database"]["password"] = "";
+$options["database"]["table"]    = "tablegear";
 //$options["database"]["utf8"]     = true;
 
 
@@ -328,8 +328,8 @@ display: none;
 </head>
 <body>
   <div>
-    <?= $table->getTable() ?>
+    <?php $table->getTable() ?>
   </div>
-  <?= $table->getJavascript("jquery") ?>
+  <?php $table->getJavascript("jquery") ?>
 </body>
 </html>
