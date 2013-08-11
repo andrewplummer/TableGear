@@ -27,9 +27,9 @@ $options["pagination"] = array();
 
 // Basic database information. These are required.
 
-$options["database"]["name"]     = DATABASE_NAME;
-$options["database"]["username"] = DATABASE_USER;
-$options["database"]["password"] = DATABASE_PASS;
+$options["database"]["name"]     = "tablegear";
+$options["database"]["username"] = "root";
+$options["database"]["password"] = "";
 $options["database"]["table"]    = "tablegear";
 //$options["database"]["utf8"]     = true;
 
@@ -109,8 +109,10 @@ $options["database"]["table"]    = "tablegear";
 // $options["editable"]  = array("<FIELD1>", "<FIELD2", "ETC...");
 
 
-$options["editable"]  = "all";
+// $options["editable"]  = "all"; Defaults to all except auto increment
 $options["showAddNewRow"]  = true;
+$options["defaultFields"] = array("description" => "FOOBAR");
+$options["columns"] = array("description" => "description");
 
 // -- Textareas
 //
@@ -314,6 +316,10 @@ $table = new TableGear($options);
   <link type="text/css" rel="stylesheet" href="../lib/stylesheets/tablegear.css" />
   <style type="text/css">
 
+.description {
+display: none;
+}
+
 .wowzers {
   background-color: #ffe2e2;
 }
@@ -322,8 +328,8 @@ $table = new TableGear($options);
 </head>
 <body>
   <div>
-    <?= $table->getTable() ?>
+    <?php $table->getTable() ?>
   </div>
-  <?= $table->getJavascript("jquery") ?>
+  <?php $table->getJavascript("jquery") ?>
 </body>
 </html>

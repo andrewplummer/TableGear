@@ -808,7 +808,11 @@ BOTTOM;
     if($this->data && !$this->database["fetchEmptyRow"]){
       $emptyDataRow["data"] = $this->data[0]["data"];
       foreach($emptyDataRow["data"] as $index => $value){
-        $emptyDataRow["data"][$index] = "";
+        $val = "";
+        if($this->defaultFields && array_key_exists($index, $this->defaultFields)) {
+          $val = $this->defaultFields[$index];
+        }
+        $emptyDataRow["data"][$index] = $val;
       }
     } else {
       $emptyDataRow["data"] = array();

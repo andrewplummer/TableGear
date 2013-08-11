@@ -342,13 +342,13 @@ $t2->fetchData($q2);
 </head>
 <body>
   <div>
-    <?= $table->getTable() ?>
+    <?php $table->getTable() ?>
   </div>
   <p>--------------------------- hey let's take a break! --------------------</p>
   <div>
-    <?= $t2->getTable() ?>
+    <?php $t2->getTable() ?>
   </div>
-  <?= $table->getJavascript("jquery") ?>
-  <?= $t2->getJavascript("jquery") ?>
+  <?php $table->getJavascript("jquery") ?>
+  <?php $t2->getJavascript("jquery") ?>
 </body>
 </html>
