@@ -1407,7 +1407,7 @@ BOTTOM;
       $this->_json["formatted"] = $this->_outputHTML($transformed, false, false);
 
 
-      $this->_callback("onUpdate", $cKey, $callbackPrev, $updatedData);
+      $this->_callback("onUpdate", $cKey, $callbackPrev, $updatedData, $field);
     }
   }
 
@@ -1460,13 +1460,13 @@ BOTTOM;
     return $type == "increment";
   }
 
-  function _callback($type, $key, $previous = null, $updated = null)
+  function _callback($type, $key, $previous = null, $updated = null, $field = null)
   {
     $function = $this->callback[$type];
     if(!function_exists($function)) return;
     $userExposedKey = $this->_getPrimaryKeyArrayOrValue($key);
     $updated = $this->_appendPrimaryKeyValues($updated, $key);
-    call_user_func($function, $userExposedKey, $previous, $updated, $this);
+    call_user_func($function, $userExposedKey, $previous, $updated, $this, $field);
   }
 
   function _getPrimaryKeyArrayOrValue($key)
