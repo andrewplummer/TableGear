@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 rm releases/TableGear$1-MooTools.zip
 rm releases/TableGear$1-jQuery.zip
 

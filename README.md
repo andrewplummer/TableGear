@@ -1,6 +1,6 @@
 
 
-h1. TableGear
+# TableGear
 
 TableGear is a software package for working with data on the web. It is designed get your data into a web page, and let you work with it quickly and easily, the way you would in powerful desktop applications like Excel.
 
